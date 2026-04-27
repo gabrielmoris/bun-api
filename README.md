@@ -8,6 +8,7 @@
 - CI from day one — Every push runs tests. No manual "it works on my machine."
 
 ### Architecture pattern
+```text
 src/
 ├── routes/          # HTTP handlers — parse request, call service, format response
 ├── services/        # Business logic — owns the rules, knows nothing about HTTP
@@ -16,6 +17,7 @@ src/
 ├── schemas/         # Zod/Valibot validation schemas
 ├── db/              # Migrations, connection setup
 └── __tests__/       # Test files mirroring the structure
+```
 
 ### Every API error response structure
 ```typescript
