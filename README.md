@@ -31,3 +31,6 @@ src/
   }
 }
 ```
+
+### Documentation
+https://bun.sh/docs/runtime/http/server

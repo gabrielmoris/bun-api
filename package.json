@@ -2,8 +2,18 @@
   "name": "bun-api",
   "module": "/src/index.ts",
   "type": "module",
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "bun run src/index.ts",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "src/*.{js,ts}": "bun fmt --fix"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
   },
   "peerDependencies": {
     "typescript": "^5"
