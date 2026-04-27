@@ -8,12 +8,13 @@
     "lint-staged": "lint-staged"
   },
   "lint-staged": {
-    "src/*.{js,ts}": "bun fmt --fix"
+    "*.{js,ts}": "prettier --write"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0"
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3"
   },
   "peerDependencies": {
     "typescript": "^5"
