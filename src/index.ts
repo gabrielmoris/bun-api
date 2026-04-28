@@ -1,7 +1,7 @@
 import { serve } from "bun";
 
 const server = serve({
-  port: 3001,
+  port: 3000,
   fetch(req) {
     return new Response("Hello World from Bun API!");
   },
