@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky install",
+    "docker": "docker compose up",
     "dev": "bun run src/index.ts",
     "lint-staged": "lint-staged"
   },
