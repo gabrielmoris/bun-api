@@ -1,33 +1,44 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-export interface IUser extends Document {
-  email: string;
-  name?: string;
-  image?: string;
+export interface IBookmark extends Document {
+  url: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-const userSchema: Schema = new mongoose.Schema(
+const bookmarkSchema = new Schema<IBookmark>(
   {
-    email: {
+    url: {
       type: String,
       required: true,
       unique: true,
       trim: true,
-      lowercase: true,
     },
-    googleID: { type: String, unique: true, trim: true },
-    name: { type: String, trim: true },
-    image: { type: String, trim: true },
+    title: {
+      type: String,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
   },
   {
     timestamps: true,
   },
 );
 
-const User =
-  (mongoose.models.User as mongoose.Model<IUser>) ||
-  mongoose.model<IUser>("User", userSchema);
+const Bookmark: Model<IBookmark> =
+  (mongoose.models.Bookmark as Model<IBookmark>) ||
+  mongoose.model<IBookmark>("Bookmark", bookmarkSchema);
 
-export default User;
+export default Bookmark;
