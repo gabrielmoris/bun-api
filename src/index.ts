@@ -18,3 +18,4 @@ console.log(`Server running on http://localhost:${server.port}`);
 // 1. Validation with zod
 // 2. Add the connection to the mongo db
 // 3. add the post and the get
+// 4. tests!
