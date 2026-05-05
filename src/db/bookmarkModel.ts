@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IBookmark extends Document {
   url: string;
-  title?: string;
+  title: string;
   description?: string;
   tags?: string[];
   createdAt: Date;
@@ -19,6 +19,7 @@ const bookmarkSchema = new Schema<IBookmark>(
     },
     title: {
       type: String,
+      required: true,
       trim: true,
     },
     description: {
