@@ -1,8 +1,5 @@
 import { serve } from "bun";
 import { routes } from "./routes";
-// import { connectDB } from "./db/mongo";
-
-// const mongoconnection = await connectDB();
 
 const server = serve({
   port: 3000,

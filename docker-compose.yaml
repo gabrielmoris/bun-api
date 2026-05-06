@@ -8,7 +8,6 @@ services:
       - "3000:3000"
     volumes:
       - ./:/app
-      - /app/node_modules
     working_dir: /app
     command: bun run --watch src/index.ts
     depends_on:
