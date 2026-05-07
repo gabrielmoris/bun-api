@@ -1,10 +1,9 @@
 import type { BunRequest } from "bun";
 import { createBookmarkSchema } from "../../schemas/bookmarkSchema";
-import { connectDB } from "../../db/mongo";
-import Bookmark from "../../db/bookmarkModel";
+import type { BookmarkType } from "../../types/bookmarkType";
+import { createBookmark } from "../../services/createBookmark";
 
-export const createBookmark = async (_req: BunRequest) => {
-  console.log("\n\n HEY!!!");
+export const postBookmark = async (_req: BunRequest) => {
   try {
     const rawBody: any = await _req.json();
 
@@ -19,30 +18,16 @@ export const createBookmark = async (_req: BunRequest) => {
       );
     }
 
-    const body = result.data;
+    const body: BookmarkType = result.data;
 
-    await connectDB();
+    const { error, data } = await createBookmark(body);
 
-    const bookmark = await Bookmark.findOne({ url: body.url });
-
-    if (bookmark) {
-      return Response.json(
-        {
-          error: {
-            code: "DUPLICATED_ENTRY",
-            message: "This url is already in your database",
-            details: [{ field: "url", message: "Duplicated url" }],
-          },
-        },
-        { status: 409 },
-      );
+    if (error) {
+      return Response.json(error, { status: 409 });
     }
 
-    const saved = await Bookmark.create(body);
-
-    return Response.json({ created: true, ...saved }, { status: 201 });
+    return Response.json({ created: true, ...data }, { status: 201 });
   } catch (e) {
-    console.log(e);
     return Response.json(
       {
         error: {

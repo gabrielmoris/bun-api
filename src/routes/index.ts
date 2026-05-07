@@ -1,10 +1,10 @@
 import { getBookmarks } from "./bookmarks/get";
-import { createBookmark } from "./bookmarks/post";
+import { postBookmark } from "./bookmarks/post";
 
 export const routes = {
   "/bookmarks": {
     GET: getBookmarks,
-    POST: createBookmark,
+    POST: postBookmark,
   },
 };
 
