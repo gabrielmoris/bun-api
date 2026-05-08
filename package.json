@@ -6,6 +6,7 @@
     "prepare": "husky install",
     "docker": "docker compose up",
     "dev": "bun run src/index.ts",
+    "test": "bun test",
     "lint-staged": "lint-staged"
   },
   "lint-staged": {

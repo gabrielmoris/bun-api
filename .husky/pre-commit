@@ -11,3 +11,4 @@ echo "
 "
 
 bunx lint-staged
+bun run test
