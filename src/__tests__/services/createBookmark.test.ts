@@ -38,4 +38,23 @@ describe("Bookmarks creation", () => {
       data: { ...mockedBookmark, _id: "fake-id-123" },
     });
   });
+
+  test("Sends proper error structure when it fails", async () => {
+    const failConnection = true;
+    mockConnectDB(failConnection);
+    const result = await createBookmark(mockedBookmark);
+
+    expect(result).toMatchObject({
+      error: {
+        code: "UNKNOWN_ERROR",
+        message: "Mocked DB Error",
+        details: [
+          {
+            field: "unknown",
+            message: "Unknown error happened saving a Bookmark",
+          },
+        ],
+      },
+    });
+  });
 });
