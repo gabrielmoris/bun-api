@@ -19,6 +19,22 @@ describe("Bookmarks creation", () => {
     mockBookmarkModel();
   });
 
+  test("It gets the all the bookmarks", async () => {
+    leanMock.mockResolvedValueOnce(mockedBookmarks);
+    countDocumentsMock.mockResolvedValueOnce(3);
+
+    const result = await getPaginatedBookmarks(1, 10);
+
+    expect(findMock).toHaveBeenCalledWith({});
+    expect(skipMock).toHaveBeenCalledWith(0);
+    expect(limitMock).toHaveBeenCalledWith(10);
+
+    expect(result).toMatchObject({
+      total: 3,
+      bookmarks: mockedBookmarks,
+    });
+  });
+
   test("It gets the first page with limit 1", async () => {
     leanMock.mockResolvedValueOnce([mockedBookmarks[0]]);
     countDocumentsMock.mockResolvedValueOnce(3);
