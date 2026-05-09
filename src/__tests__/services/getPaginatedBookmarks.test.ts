@@ -1,9 +1,8 @@
-import { expect, test, describe, beforeAll, mock } from "bun:test";
+import { expect, test, describe, beforeAll } from "bun:test";
 import {
   mockBookmarkModel,
   mockConnectDB,
   findMock,
-  sortMock,
   skipMock,
   limitMock,
   leanMock,
@@ -16,16 +15,8 @@ const { getPaginatedBookmarks } =
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {
-    mock.restore();
     mockConnectDB();
     mockBookmarkModel();
-
-    findMock.mockClear();
-    sortMock.mockClear();
-    skipMock.mockClear();
-    limitMock.mockClear();
-    leanMock.mockClear();
-    countDocumentsMock.mockClear();
   });
 
   test("It gets the first page with limit 1", async () => {
