@@ -7,7 +7,7 @@ import {
   mockConnectDB,
 } from "../mocks/db.mock";
 import { mockedBookmark } from "../mocks/bookmarks.mock";
-const { createBookmark } = await import("../../services/createBookmark");
+import { createBookmark } from "../../services/createBookmark";
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {

@@ -1,15 +1,17 @@
 import { getBookmarks } from "./bookmarks/get";
+import { getById } from "./bookmarks/getById";
 import { postBookmark } from "./bookmarks/post";
 
 export const routes = {
+  "/health": new Response("OK"),
   "/bookmarks": {
     POST: postBookmark,
     GET: getBookmarks,
   },
 
-  //TODO: 1 test getPaginatedBookmarks, 2 get bookmark by ID, test it, put, test it too
+  //TODO: PUT and Tests
   "/bookmarks/:id": {
-    GET: getBookmarks,
+    GET: getById,
   },
 };
 

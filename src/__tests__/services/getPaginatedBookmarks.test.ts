@@ -9,9 +9,7 @@ import {
   countDocumentsMock,
 } from "../mocks/db.mock";
 import { mockedBookmarks } from "../mocks/bookmarks.mock";
-
-const { getPaginatedBookmarks } =
-  await import("../../services/getPaginatedBookmarks");
+import { getPaginatedBookmarks } from "../../services/getPaginatedBookmarks";
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {
