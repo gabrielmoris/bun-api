@@ -28,4 +28,4 @@ jobs:
       - name: Run tests
         run: bun test
         env:
-          MONGO_URI: mongodb://root:password@mongo:27017/app?authSource=admin
+          MONGODB_URI: mongodb://root:password@mongo:27017/app?authSource=admin
