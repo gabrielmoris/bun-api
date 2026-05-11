@@ -6,3 +6,5 @@ export const createBookmarkSchema = z.object({
   description: z.string().trim().min(1).optional(),
   tags: z.array(z.string().trim().min(1)).optional(),
 });
+
+export const updateBookmarkSchema = createBookmarkSchema.partial().strict();

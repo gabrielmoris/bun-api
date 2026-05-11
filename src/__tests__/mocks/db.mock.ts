@@ -1,5 +1,6 @@
 import { mock } from "bun:test";
 import { mockedBookmarks } from "./bookmarks.mock";
+import type { BookmarkType } from "../../types/bookmarkType";
 
 export const mockConnectDB = (shouldFail = false) =>
   mock.module("../../db/mongo.ts", () => ({
@@ -21,6 +22,19 @@ export const findByIdMock = mock(async (id: string): Promise<any> => {
   return mockedBookmarks.find((b) => b._id === id) ?? null;
 });
 
+export const findByIdAndUpdateMock = mock(
+  async (
+    id: string,
+    update: Partial<BookmarkType>,
+    _options?: any,
+  ): Promise<any> => {
+    const foundBookmark = mockedBookmarks.find((b) => b._id === id);
+    if (!foundBookmark) return null;
+
+    return { ...foundBookmark, ...update };
+  },
+);
+
 export const countDocumentsMock = mock(async () => 3);
 
 export const createMock = mock(async (bookmark: any) => ({
@@ -36,5 +50,6 @@ export const mockBookmarkModel = () =>
       find: findMock,
       countDocuments: countDocumentsMock,
       findById: findByIdMock,
+      findByIdAndUpdate: findByIdAndUpdateMock,
     },
   }));
