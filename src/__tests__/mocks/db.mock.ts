@@ -21,7 +21,6 @@ export const findMock = mock((_query: any) => ({ sort: sortMock }));
 export const findByIdMock = mock(async (id: string): Promise<any> => {
   return mockedBookmarks.find((b) => b._id === id) ?? null;
 });
-
 export const findByIdAndUpdateMock = mock(
   async (
     id: string,
@@ -32,6 +31,14 @@ export const findByIdAndUpdateMock = mock(
     if (!foundBookmark) return null;
 
     return { ...foundBookmark, ...update };
+  },
+);
+export const deleteOneMock = mock(
+  async (filter: { _id: string }): Promise<any> => {
+    const targetDeleted = mockedBookmarks.find((b) => b._id === filter._id);
+    if (!targetDeleted) return null;
+
+    return targetDeleted;
   },
 );
 
@@ -51,5 +58,6 @@ export const mockBookmarkModel = () =>
       countDocuments: countDocumentsMock,
       findById: findByIdMock,
       findByIdAndUpdate: findByIdAndUpdateMock,
+      deleteOne: deleteOneMock,
     },
   }));

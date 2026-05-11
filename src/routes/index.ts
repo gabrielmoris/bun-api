@@ -1,3 +1,4 @@
+import { deleteById } from "./bookmarks/delete";
 import { getBookmarks } from "./bookmarks/get";
 import { getById } from "./bookmarks/getById";
 import { postBookmark } from "./bookmarks/post";
@@ -10,10 +11,11 @@ export const routes = {
     GET: getBookmarks,
   },
 
-  //TODO: DELETE and Tests. GH actions, upload to Railway
+  //TODO: Rate limiting, CORS, cache, GH actions, upload to Railway
   "/bookmarks/:id": {
     GET: getById,
     PUT: putById,
+    DELETE: deleteById,
   },
 };
 
