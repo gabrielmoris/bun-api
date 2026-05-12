@@ -1,63 +1,76 @@
 import type { BunRequest } from "bun";
 import { deleteBookmarkById } from "../../services/deleteBookmarkById";
+import { withCors } from "../../middleware/cors";
 
-export const deleteById = async (_req: BunRequest) => {
+export const deleteById = async (req: BunRequest) => {
   try {
-    const { id } = _req.params;
+    const { id } = req.params;
 
     if (!id) {
-      return Response.json(
-        {
-          error: {
-            code: "UNKNOWN_ERROR",
-            message: "Bad Request",
-            details: [
-              {
-                field: "unknown",
-                message: "No id provided",
-              },
-            ],
+      return withCors(
+        req,
+        Response.json(
+          {
+            error: {
+              code: "UNKNOWN_ERROR",
+              message: "Bad Request",
+              details: [
+                {
+                  field: "unknown",
+                  message: "No id provided",
+                },
+              ],
+            },
           },
-        },
-        { status: 400 },
+          { status: 400 },
+        ),
       );
     }
 
     const { bookmark, error } = await deleteBookmarkById(id);
 
     if (error) {
-      return Response.json(error, {
-        status:
-          error.code === "INVAILD_ID"
-            ? 400
-            : error.code === "NOT_FOUND"
-              ? 404
-              : 500,
-      });
+      return withCors(
+        req,
+        Response.json(error, {
+          status:
+            error.code === "INVAILD_ID"
+              ? 400
+              : error.code === "NOT_FOUND"
+                ? 404
+                : 500,
+        }),
+      );
     }
 
-    return Response.json(
-      {
-        success: true,
-        data: bookmark,
-      },
-      { status: 200 },
+    return withCors(
+      req,
+      Response.json(
+        {
+          success: true,
+          data: bookmark,
+        },
+        { status: 200 },
+      ),
     );
   } catch (e) {
-    return Response.json(
-      {
-        error: {
-          code: "UNKNOWN_ERROR",
-          message: e instanceof Error ? e.message : "Unknown error",
-          details: [
-            {
-              field: "unknown",
-              message: "Unknown error happened retrieving Bookmarks",
-            },
-          ],
+    return withCors(
+      req,
+      Response.json(
+        {
+          error: {
+            code: "UNKNOWN_ERROR",
+            message: e instanceof Error ? e.message : "Unknown error",
+            details: [
+              {
+                field: "unknown",
+                message: "Unknown error happened retrieving Bookmarks",
+              },
+            ],
+          },
         },
-      },
-      { status: 500 },
+        { status: 500 },
+      ),
     );
   }
 };
