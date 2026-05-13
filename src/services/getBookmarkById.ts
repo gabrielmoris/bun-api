@@ -1,6 +1,7 @@
 import { connectDB } from "../db/mongo";
 import Bookmark from "../db/bookmarkModel";
 import mongoose from "mongoose";
+import { cacheKeys, getOrSet } from "../repositories/cache";
 
 export const getBookmarkById = async (id: string) => {
   try {
@@ -18,26 +19,33 @@ export const getBookmarkById = async (id: string) => {
         },
       };
     }
-    await connectDB();
 
-    const bookmark = await Bookmark.findById(id);
+    return await getOrSet({
+      key: cacheKeys.bookmarksById(id),
+      ttlSec: 30,
+      loader: async () => {
+        await connectDB();
 
-    if (!bookmark) {
-      return {
-        error: {
-          code: "NOT_FOUND",
-          message: "This bookmark could not be found",
-          details: [
-            {
-              field: "id",
-              message: `No bookmark with id ${id}`,
+        const bookmark = await Bookmark.findById(id);
+
+        if (!bookmark) {
+          return {
+            error: {
+              code: "NOT_FOUND",
+              message: "This bookmark could not be found",
+              details: [
+                {
+                  field: "id",
+                  message: `No bookmark with id ${id}`,
+                },
+              ],
             },
-          ],
-        },
-      };
-    }
+          };
+        }
 
-    return { bookmark };
+        return { bookmark };
+      },
+    });
   } catch (e) {
     return {
       error: {

@@ -6,6 +6,7 @@ import {
 } from "../mocks/db.mock";
 import { mockedBookmarks } from "../mocks/bookmarks.mock";
 import { modifyBookmarkById } from "../../services/modifyBookmarkById";
+import { mockCache } from "../mocks/redis.mock";
 
 const bookmarkToModify = {
   url: "http://i-am-modified.com",
@@ -15,6 +16,7 @@ describe("Bookmarks creation", () => {
   beforeAll(() => {
     mockConnectDB();
     mockBookmarkModel();
+    mockCache();
   });
 
   beforeEach(() => {

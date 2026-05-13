@@ -6,11 +6,13 @@ import {
 } from "../mocks/db.mock";
 import { mockedBookmarks } from "../mocks/bookmarks.mock";
 import { deleteBookmarkById } from "../../services/deleteBookmarkById";
+import { mockCache } from "../mocks/redis.mock";
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {
     mockConnectDB();
     mockBookmarkModel();
+    mockCache();
   });
 
   beforeEach(() => {

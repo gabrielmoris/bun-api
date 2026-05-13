@@ -1,17 +1,29 @@
 import Bookmark from "../db/bookmarkModel";
 import { connectDB } from "../db/mongo";
+import { cacheKeys, getOrSet } from "../repositories/cache";
 
 export const getPaginatedBookmarks = async (page: number, limit: number) => {
   try {
     const skip = (page - 1) * limit;
-    await connectDB();
 
-    const [bookmarks, total] = await Promise.all([
-      Bookmark.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Bookmark.countDocuments({}),
-    ]);
+    return await getOrSet({
+      key: cacheKeys.bookmarksPage(page, limit),
+      ttlSec: 30,
+      loader: async () => {
+        await connectDB();
 
-    return { total, bookmarks };
+        const [bookmarks, total] = await Promise.all([
+          Bookmark.find({})
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+          Bookmark.countDocuments({}),
+        ]);
+
+        return { total, bookmarks };
+      },
+    });
   } catch (e) {
     return {
       error: {
