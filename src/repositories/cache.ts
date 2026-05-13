@@ -37,6 +37,13 @@ export async function delKeys(...keys: string[]) {
   }
 }
 
+export async function delAllBookmarkListCaches() {
+  const keys = await redis.keys("bookmarks:list:*");
+  if (keys.length) {
+    await redis.del(...keys);
+  }
+}
+
 export const cacheKeys = {
   bookmarksById: (id: string) => `bookmarks:${id}`,
   bookmarksPage: (page: number, limit: number) =>

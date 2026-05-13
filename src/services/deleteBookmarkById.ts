@@ -1,7 +1,7 @@
 import { connectDB } from "../db/mongo";
 import Bookmark from "../db/bookmarkModel";
 import mongoose from "mongoose";
-import { delKeys } from "../repositories/cache";
+import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
 
 export const deleteBookmarkById = async (id: string) => {
   try {
@@ -39,6 +39,7 @@ export const deleteBookmarkById = async (id: string) => {
     }
 
     await delKeys(`bookmarks:${id}`);
+    await delAllBookmarkListCaches();
 
     return { bookmark };
   } catch (e) {

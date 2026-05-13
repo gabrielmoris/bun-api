@@ -2,6 +2,7 @@ import Bookmark from "../db/bookmarkModel";
 import { connectDB } from "../db/mongo";
 import type { ApiError } from "../types/errorType";
 import type { BookmarkType } from "../types/bookmarkType";
+import { delAllBookmarkListCaches } from "../repositories/cache";
 
 export const createBookmark = async (
   bookmark: BookmarkType,
@@ -22,6 +23,7 @@ export const createBookmark = async (
     }
 
     const createdBookmark = await Bookmark.create(bookmark);
+    await delAllBookmarkListCaches();
 
     return { data: { ...bookmark, _id: createdBookmark._id } };
   } catch (e) {

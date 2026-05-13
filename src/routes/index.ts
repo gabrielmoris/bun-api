@@ -12,7 +12,7 @@ export const routes = {
     GET: getBookmarks,
   },
 
-  //TODO: Rate limiting, cache, upload to Railway
+  // TODO: Rate limiting, upload to Railway
   "/bookmarks/:id": {
     OPTIONS: (req: Request) => handlePreflight(req),
     GET: getById,
