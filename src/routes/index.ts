@@ -14,7 +14,6 @@ export const routes = {
     GET: withRateLimit(getBookmarks),
   },
 
-  // TODO: Rate limiting, upload to Railway
   "/bookmarks/:id": {
     OPTIONS: (req: BunRequest) => handlePreflight(req),
     GET: withRateLimit(getById),

@@ -1,13 +1,13 @@
-const ALLOWED_ORIGINS = JSON.parse(
-  process.env.ALLOWED_ORIGINS ?? "[]",
-) as string[];
-
 export function getCorsHeaders(req: Request): Headers {
+  const allowedOrigins = JSON.parse(
+    process.env.ALLOWED_ORIGINS ?? "[]",
+  ) as string[];
+
   const origin = req.headers.get("origin");
   const allowedOrigin =
-    origin && ALLOWED_ORIGINS.includes(origin)
+    origin && allowedOrigins.includes(origin)
       ? origin
-      : (ALLOWED_ORIGINS[0] ?? "");
+      : (allowedOrigins[0] ?? "");
 
   const headers = new Headers();
   headers.set("Access-Control-Allow-Origin", allowedOrigin);
