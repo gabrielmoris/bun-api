@@ -26,7 +26,7 @@ export const getBookmarkById = async (id: string) => {
       loader: async () => {
         await connectDB();
 
-        const bookmark = findBookmarkById(id);
+        const bookmark = await findBookmarkById(id);
 
         if (!bookmark) {
           return {
