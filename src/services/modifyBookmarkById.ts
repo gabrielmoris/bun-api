@@ -1,4 +1,3 @@
-import { connectDB } from "../db/mongo";
 import mongoose from "mongoose";
 import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
@@ -23,7 +22,6 @@ export const modifyBookmarkById = async (
         },
       };
     }
-    await connectDB();
 
     const bookmark = await findAndUpdateBookmark(id, update);
 

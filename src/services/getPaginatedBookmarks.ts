@@ -1,4 +1,3 @@
-import { connectDB } from "../db/mongo";
 import { findPaginatedBookmarks } from "../repositories/bookmarkRepository";
 import { cacheKeys, getOrSet } from "../repositories/cache";
 
@@ -10,7 +9,6 @@ export const getPaginatedBookmarks = async (page: number, limit: number) => {
       key: cacheKeys.bookmarksPage(page, limit),
       ttlSec: 30,
       loader: async () => {
-        await connectDB();
         return await findPaginatedBookmarks(skip, limit);
       },
     });

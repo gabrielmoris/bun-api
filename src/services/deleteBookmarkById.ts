@@ -1,4 +1,3 @@
-import { connectDB } from "../db/mongo";
 import mongoose from "mongoose";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
 import { deleteBookmark } from "../repositories/bookmarkRepository";
@@ -19,7 +18,6 @@ export const deleteBookmarkById = async (id: string) => {
         },
       };
     }
-    await connectDB();
 
     const bookmark = await deleteBookmark(id);
 

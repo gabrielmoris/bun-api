@@ -1,4 +1,3 @@
-import { connectDB } from "../db/mongo";
 import type { ApiError } from "../types/errorType";
 import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches } from "../repositories/cache";
@@ -11,8 +10,6 @@ export const createBookmark = async (
   bookmark: BookmarkType,
 ): Promise<ApiError | any> => {
   try {
-    await connectDB();
-
     const isBookmarkInDatabase = await findBookmarkByUrl(bookmark.url);
 
     if (isBookmarkInDatabase) {
