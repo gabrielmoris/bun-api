@@ -1,8 +1,8 @@
 import { connectDB } from "../db/mongo";
-import Bookmark from "../db/bookmarkModel";
 import mongoose from "mongoose";
 import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
+import { findAndUpdateBookmark } from "../repositories/bookmarkRepository";
 
 export const modifyBookmarkById = async (
   id: string,
@@ -25,10 +25,7 @@ export const modifyBookmarkById = async (
     }
     await connectDB();
 
-    const bookmark = await Bookmark.findByIdAndUpdate(id, update, {
-      new: true,
-      runValidators: true,
-    });
+    const bookmark = await findAndUpdateBookmark(id, update);
 
     if (!bookmark) {
       return {

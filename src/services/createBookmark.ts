@@ -1,8 +1,11 @@
-import Bookmark from "../db/bookmarkModel";
 import { connectDB } from "../db/mongo";
 import type { ApiError } from "../types/errorType";
 import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches } from "../repositories/cache";
+import {
+  createBookmarkInDb,
+  findBookmarkByUrl,
+} from "../repositories/bookmarkRepository";
 
 export const createBookmark = async (
   bookmark: BookmarkType,
@@ -10,7 +13,7 @@ export const createBookmark = async (
   try {
     await connectDB();
 
-    const isBookmarkInDatabase = await Bookmark.findOne({ url: bookmark.url });
+    const isBookmarkInDatabase = await findBookmarkByUrl(bookmark.url);
 
     if (isBookmarkInDatabase) {
       return {
@@ -22,7 +25,7 @@ export const createBookmark = async (
       };
     }
 
-    const createdBookmark = await Bookmark.create(bookmark);
+    const createdBookmark = await createBookmarkInDb(bookmark);
     await delAllBookmarkListCaches();
 
     return { data: { ...bookmark, _id: createdBookmark._id } };

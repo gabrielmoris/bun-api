@@ -1,7 +1,7 @@
 import { connectDB } from "../db/mongo";
-import Bookmark from "../db/bookmarkModel";
 import mongoose from "mongoose";
 import { cacheKeys, getOrSet } from "../repositories/cache";
+import { findBookmarkById } from "../repositories/bookmarkRepository";
 
 export const getBookmarkById = async (id: string) => {
   try {
@@ -26,7 +26,7 @@ export const getBookmarkById = async (id: string) => {
       loader: async () => {
         await connectDB();
 
-        const bookmark = await Bookmark.findById(id);
+        const bookmark = findBookmarkById(id);
 
         if (!bookmark) {
           return {

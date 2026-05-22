@@ -7,6 +7,7 @@ import { getById } from "./bookmarks/getById";
 import { postBookmark } from "./bookmarks/post";
 import { putById } from "./bookmarks/putById";
 
+// TODO: Test API ENDPOINTS
 export const routes = {
   "/health": (req: BunRequest) => withCors(req, new Response("OK")),
   "/bookmarks": {
