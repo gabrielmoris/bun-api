@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
 import { cacheKeys, getOrSet } from "../repositories/cache";
 import { findBookmarkById } from "../repositories/bookmarkRepository";
 
 export const getBookmarkById = async (id: string) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const numId = Number(id);
+    if (!id || isNaN(numId) || numId <= 0) {
       return {
         error: {
           code: "INVALID_ID",
@@ -12,7 +12,7 @@ export const getBookmarkById = async (id: string) => {
           details: [
             {
               field: "id",
-              message: "Expected a valid MongoDB ObjectId",
+              message: "Expected a valid positive integer ID",
             },
           ],
         },
@@ -23,7 +23,7 @@ export const getBookmarkById = async (id: string) => {
       key: cacheKeys.bookmarksById(id),
       ttlSec: 30,
       loader: async () => {
-        const bookmark = await findBookmarkById(id);
+        const bookmark = findBookmarkById(id);
 
         if (!bookmark) {
           return {

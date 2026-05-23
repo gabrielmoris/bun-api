@@ -1,14 +1,11 @@
-import mongoose from "mongoose";
-import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
 import { findAndUpdateBookmark } from "../repositories/bookmarkRepository";
+import type { IBookmark } from "../types/bookmarkType";
 
-export const modifyBookmarkById = async (
-  id: string,
-  update: Partial<BookmarkType>,
-) => {
+export const modifyBookmarkById = async (id: string, update: Partial<IBookmark>) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const numId = Number(id);
+    if (!id || isNaN(numId) || numId <= 0) {
       return {
         error: {
           code: "INVALID_ID",
@@ -16,14 +13,14 @@ export const modifyBookmarkById = async (
           details: [
             {
               field: "id",
-              message: "Expected a valid MongoDB ObjectId",
+              message: "Expected a valid positive integer ID",
             },
           ],
         },
       };
     }
 
-    const bookmark = await findAndUpdateBookmark(id, update);
+    const bookmark = findAndUpdateBookmark(id, update);
 
     if (!bookmark) {
       return {

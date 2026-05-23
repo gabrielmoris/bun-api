@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
 import { deleteBookmark } from "../repositories/bookmarkRepository";
 
-export const deleteBookmarkById = async (id: string) => {
+export const deleteBookmarkById = async (id: number) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const numId = Number(id);
+    if (!id || isNaN(numId) || numId <= 0) {
       return {
         error: {
           code: "INVALID_ID",
@@ -12,14 +12,14 @@ export const deleteBookmarkById = async (id: string) => {
           details: [
             {
               field: "id",
-              message: "Expected a valid MongoDB ObjectId",
+              message: "Expected a valid positive integer ID",
             },
           ],
         },
       };
     }
 
-    const bookmark = await deleteBookmark(id);
+    const bookmark = deleteBookmark(id);
 
     if (!bookmark) {
       return {

@@ -1,47 +1,55 @@
-import { expect, test, describe, beforeAll } from "bun:test";
+import { expect, test, describe, beforeAll, beforeEach } from "bun:test";
 
-import {
-  createMock,
-  findOneMock,
-  mockBookmarkModel,
-  mockConnectDB,
-} from "../mocks/db.mock";
-import { mockedBookmark } from "../mocks/bookmarks.mock";
+import { findBookmarkByUrlMock, createBookmarkInDbMock, delAllBookmarkListCachesMock, mockBookmarkRepository, mockCache } from "../mocks/db.mock";
+import { mockedBookmark, mockedBookmarks } from "../mocks/bookmarks.mock";
 import { createBookmark } from "../../services/createBookmark";
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {
-    mockConnectDB();
-    mockBookmarkModel();
+    mockBookmarkRepository();
+    mockCache();
+  });
+
+  beforeEach(() => {
+    findBookmarkByUrlMock.mockClear();
+    createBookmarkInDbMock.mockClear();
+    delAllBookmarkListCachesMock.mockClear();
   });
 
   test("It doesn't create bookmark if the DB already has a bookmark", async () => {
-    findOneMock.mockResolvedValueOnce({
-      _id: "existing-id",
-      ...mockedBookmark,
-    });
+    findBookmarkByUrlMock.mockReturnValueOnce(mockedBookmarks[0]);
 
     const result = await createBookmark(mockedBookmark);
 
-    expect(findOneMock).toHaveBeenCalledWith({ url: mockedBookmark.url });
-    expect(createMock).not.toHaveBeenCalled();
+    expect(findBookmarkByUrlMock).toHaveBeenCalledWith(mockedBookmark.url);
+    expect(createBookmarkInDbMock).not.toHaveBeenCalled();
     expect(result.error?.code).toBe("DUPLICATED_ENTRY");
   });
 
   test("It creates a bookmark if the bookmark is not in the DB", async () => {
-    findOneMock.mockResolvedValueOnce(null);
+    // Setup: simulate no bookmark found
+    findBookmarkByUrlMock.mockReturnValueOnce(null);
+    createBookmarkInDbMock.mockReturnValueOnce({
+      ...mockedBookmark,
+      id: 999,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
 
     const result = await createBookmark(mockedBookmark);
-    expect(findOneMock).toHaveBeenCalledWith({ url: mockedBookmark.url });
-    expect(createMock).toHaveBeenCalled();
-    expect(result).toMatchObject({
-      data: { ...mockedBookmark, _id: "fake-id-123" },
-    });
+
+    expect(findBookmarkByUrlMock).toHaveBeenCalledWith(mockedBookmark.url);
+    expect(createBookmarkInDbMock).toHaveBeenCalled();
+    expect(delAllBookmarkListCachesMock).toHaveBeenCalled();
+    expect(result.data?.url).toBe(mockedBookmark.url);
   });
 
   test("Sends proper error structure when it fails", async () => {
-    const failConnection = true;
-    mockConnectDB(failConnection);
+    findBookmarkByUrlMock.mockReturnValueOnce(null);
+    createBookmarkInDbMock.mockImplementation(() => {
+      throw new Error("Mocked DB Error");
+    });
+
     const result = await createBookmark(mockedBookmark);
 
     expect(result).toMatchObject({

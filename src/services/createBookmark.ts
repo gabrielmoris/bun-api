@@ -1,16 +1,11 @@
 import type { ApiError } from "../types/errorType";
-import type { BookmarkType } from "../types/bookmarkType";
 import { delAllBookmarkListCaches } from "../repositories/cache";
-import {
-  createBookmarkInDb,
-  findBookmarkByUrl,
-} from "../repositories/bookmarkRepository";
+import { createBookmarkInDb, findBookmarkByUrl } from "../repositories/bookmarkRepository";
+import type { IBookmark } from "../types/bookmarkType";
 
-export const createBookmark = async (
-  bookmark: BookmarkType,
-): Promise<ApiError | any> => {
+export const createBookmark = async (bookmark: IBookmark): Promise<ApiError | any> => {
   try {
-    const isBookmarkInDatabase = await findBookmarkByUrl(bookmark.url);
+    const isBookmarkInDatabase = findBookmarkByUrl(bookmark.url);
 
     if (isBookmarkInDatabase) {
       return {
@@ -22,10 +17,10 @@ export const createBookmark = async (
       };
     }
 
-    const createdBookmark = await createBookmarkInDb(bookmark);
+    const createdBookmark = createBookmarkInDb(bookmark);
     await delAllBookmarkListCaches();
 
-    return { data: { ...bookmark, _id: createdBookmark._id } };
+    return { data: createdBookmark };
   } catch (e) {
     return {
       error: {

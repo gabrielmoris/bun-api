@@ -1,17 +1,12 @@
 import { expect, test, describe, beforeAll, beforeEach, mock } from "bun:test";
-import {
-  mockBookmarkModel,
-  mockConnectDB,
-  deleteOneMock,
-} from "../mocks/db.mock";
 import { mockedBookmarks } from "../mocks/bookmarks.mock";
 import { deleteBookmarkById } from "../../services/deleteBookmarkById";
 import { mockCache } from "../mocks/redis.mock";
+import { deleteBookmarkMock, mockBookmarkRepository } from "../mocks/db.mock";
 
 describe("Bookmarks creation", () => {
   beforeAll(() => {
-    mockConnectDB();
-    mockBookmarkModel();
+    mockBookmarkRepository();
     mockCache();
   });
 
@@ -20,12 +15,10 @@ describe("Bookmarks creation", () => {
   });
 
   test("It deletes a Bookmark by ID", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d8d");
+    const result = await deleteBookmarkById(999);
     const oldBookmark = { ...mockedBookmarks[0] };
 
-    expect(deleteOneMock).toHaveBeenCalledWith({
-      _id: "69fcf6c34eb330810c7f6d8d",
-    });
+    expect(deleteBookmarkMock).toHaveBeenCalledWith(999);
 
     expect(result).toMatchObject({
       bookmark: oldBookmark,
@@ -33,9 +26,9 @@ describe("Bookmarks creation", () => {
   });
 
   test("It fails with the proper error if the ID is not valid", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d8ds");
+    const result = await deleteBookmarkById("sorry" as unknown as number);
 
-    expect(deleteOneMock).not.toHaveBeenCalled();
+    expect(deleteBookmarkMock).not.toHaveBeenCalled();
 
     expect(result).toEqual({
       error: {
@@ -44,7 +37,7 @@ describe("Bookmarks creation", () => {
         details: [
           {
             field: "id",
-            message: "Expected a valid MongoDB ObjectId",
+            message: "Expected a valid positive integer ID",
           },
         ],
       },
@@ -52,11 +45,9 @@ describe("Bookmarks creation", () => {
   });
 
   test("Sends proper error when there is no Bookmark with that ID", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d6d");
+    const result = await deleteBookmarkById(999);
 
-    expect(deleteOneMock).toHaveBeenCalledWith({
-      _id: "69fcf6c34eb330810c7f6d6d",
-    });
+    expect(deleteBookmarkMock).toHaveBeenCalledWith(999);
 
     expect(result).toEqual({
       error: {
