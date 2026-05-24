@@ -25,7 +25,6 @@ export function withErrorHandler(handler: Handler): Handler {
         );
       }
 
-      // Unexpected error — log and return generic 500
       console.error("[UNEXPECTED ERROR]", err);
       return withCors(
         req,
