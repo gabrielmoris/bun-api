@@ -2,7 +2,7 @@ import type { IBookmark } from "../types/bookmarkType";
 import { cacheKeys, getOrSet } from "../repositories/cache";
 import { findBookmarkById } from "../repositories/bookmarkRepository";
 import { ApiErrorCode } from "../types/errorType";
-import { createAppError } from "../middleware/errorFactory";
+import { createAppError } from "../repositories/errorFactory";
 
 export const getBookmarkById = async (id: number): Promise<IBookmark> => {
   const numId = Number(id);

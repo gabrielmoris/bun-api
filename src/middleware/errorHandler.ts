@@ -1,6 +1,6 @@
 import type { BunRequest } from "bun";
 import { withCors } from "./cors";
-import { isAppError } from "./errorFactory";
+import { isAppError } from "../repositories/errorFactory";
 
 type Handler = (req: BunRequest) => Response | Promise<Response>;
 

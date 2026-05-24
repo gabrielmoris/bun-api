@@ -1,7 +1,7 @@
 import type { BunRequest } from "bun";
 import { deleteBookmarkById } from "../../services/deleteBookmarkById";
 import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../middleware/errorFactory";
+import { createAppError } from "../../repositories/errorFactory";
 import { ApiErrorCode } from "../../types/errorType";
 
 export const deleteById = async (req: BunRequest): Promise<Response> => {

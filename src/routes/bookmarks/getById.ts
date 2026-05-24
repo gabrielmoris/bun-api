@@ -1,7 +1,7 @@
 import type { BunRequest } from "bun";
 import { getBookmarkById } from "../../services/getBookmarkById";
 import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../middleware/errorFactory";
+import { createAppError } from "../../repositories/errorFactory";
 import { ApiErrorCode } from "../../types/errorType";
 
 export const getById = async (req: BunRequest): Promise<Response> => {

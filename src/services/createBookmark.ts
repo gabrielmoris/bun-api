@@ -5,7 +5,7 @@ import {
 } from "../repositories/bookmarkRepository";
 import type { IBookmark } from "../types/bookmarkType";
 import { ApiErrorCode } from "../types/errorType";
-import { createAppError } from "../middleware/errorFactory";
+import { createAppError } from "../repositories/errorFactory";
 
 export const createBookmark = async (
   bookmark: Partial<IBookmark>,

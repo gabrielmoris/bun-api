@@ -1,7 +1,7 @@
 import type { IBookmark } from "../types/bookmarkType";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
 import { findAndUpdateBookmark } from "../repositories/bookmarkRepository";
-import { createAppError } from "../middleware/errorFactory";
+import { createAppError } from "../repositories/errorFactory";
 import { ApiErrorCode } from "../types/errorType";
 
 export const modifyBookmarkById = async (

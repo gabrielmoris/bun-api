@@ -3,7 +3,7 @@ import { modifyBookmarkById } from "../../services/modifyBookmarkById";
 import { updateBookmarkSchema } from "../../schemas/bookmarkSchema";
 import type { IBookmark } from "../../types/bookmarkType";
 import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../middleware/errorFactory";
+import { createAppError } from "../../repositories/errorFactory";
 import { ApiErrorCode } from "../../types/errorType";
 
 export const putById = async (req: BunRequest): Promise<Response> => {

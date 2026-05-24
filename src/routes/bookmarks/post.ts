@@ -2,7 +2,7 @@ import type { BunRequest } from "bun";
 import { createBookmarkSchema } from "../../schemas/bookmarkSchema";
 import { createBookmark } from "../../services/createBookmark";
 import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../middleware/errorFactory";
+import { createAppError } from "../../repositories/errorFactory";
 import { ApiErrorCode } from "../../types/errorType";
 
 export const postBookmark = async (req: BunRequest): Promise<Response> => {
