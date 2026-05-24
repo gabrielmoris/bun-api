@@ -1,11 +1,12 @@
 import { mock } from "bun:test";
-import { mockedBookmarks, mockedBookmark } from "./bookmarks.mock";
-import type { IBookmark } from "../../types/bookmarkType";
+import { mockedBookmarks } from "./bookmarks.mock";
+import type { IBookmark, IDeletedBookmark } from "../../types/bookmarkType";
 
 // =====================
-// Bookmark Repository
+// Bookmark Repository Mocks
 // =====================
-export const findBookmarkByUrlMock = mock((url: string): IBookmark | null | undefined => {
+
+export const findBookmarkByUrlMock = mock((url: string): IBookmark | null => {
   return mockedBookmarks.find((b) => b.url === url) ?? null;
 });
 
@@ -18,30 +19,37 @@ export const createBookmarkInDbMock = mock(
   }),
 );
 
-export const findBookmarkByIdMock = mock((id: string): IBookmark | null => {
-  const numId = Number(id);
-  return mockedBookmarks.find((b) => b.id === numId) ?? null;
+export const findBookmarkByIdMock = mock((id: number): IBookmark | null => {
+  return mockedBookmarks.find((b) => b.id === id) ?? null;
 });
 
-export const findAndUpdateBookmarkMock = mock((id: string, update: Partial<IBookmark>): IBookmark | null => {
-  const numId = Number(id);
-  const foundBookmark = mockedBookmarks.find((b) => b.id === numId);
-  if (!foundBookmark) return null;
-  return { ...foundBookmark, ...update } as IBookmark;
+export const findAndUpdateBookmarkMock = mock(
+  (id: number, update: Partial<IBookmark>): IBookmark | null => {
+    const foundBookmark = mockedBookmarks.find((b) => b.id === id);
+
+    if (!foundBookmark) return null;
+
+    return {
+      ...foundBookmark,
+      ...update,
+      updated_at: new Date().toISOString(),
+    };
+  },
+);
+
+export const deleteBookmarkMock = mock((id: number): IDeletedBookmark => {
+  const found = mockedBookmarks.find((b) => b.id === id);
+  return { deletedCount: found ? 1 : 0, id };
 });
 
-export const deleteBookmarkMock = mock((id: string): { deletedCount: number } => {
-  const numId = Number(id);
-  const found = mockedBookmarks.find((b) => b.id === numId);
-  return { deletedCount: found ? 1 : 0 };
-});
-
-export const findPaginatedBookmarksMock = mock((skip: number, limit: number): { total: number; bookmarks: IBookmark[] } => {
-  return {
-    total: mockedBookmarks.length,
-    bookmarks: mockedBookmarks.slice(skip, skip + limit),
-  };
-});
+export const findPaginatedBookmarksMock = mock(
+  (skip: number, limit: number): { total: number; bookmarks: IBookmark[] } => {
+    return {
+      total: mockedBookmarks.length,
+      bookmarks: mockedBookmarks.slice(skip, skip + limit),
+    };
+  },
+);
 
 export const mockBookmarkRepository = () =>
   mock.module("../../repositories/bookmarkRepository", () => ({
@@ -51,47 +59,4 @@ export const mockBookmarkRepository = () =>
     findAndUpdateBookmark: findAndUpdateBookmarkMock,
     deleteBookmark: deleteBookmarkMock,
     findPaginatedBookmarks: findPaginatedBookmarksMock,
-  }));
-
-// =====================
-// Cache
-// =====================
-export const delAllBookmarkListCachesMock = mock(async (): Promise<void> => {
-  return;
-});
-
-export const delKeysMock = mock(async (keys: string[]): Promise<void> => {
-  return;
-});
-
-export const mockCache = () =>
-  mock.module("../../repositories/cache", () => ({
-    delAllBookmarkListCaches: delAllBookmarkListCachesMock,
-    delKeys: delKeysMock,
-    cacheKeys: {
-      bookmarkList: (page: number) => `bookmarks:list:${page}`,
-      bookmarksById: (id: string) => `bookmarks:id:${id}`,
-    },
-    getOrSet: mock(async (_key: string, _ttlSec: number, _loader: () => Promise<any>) => {
-      return null;
-    }),
-  }));
-
-// =====================
-// SQLite
-// =====================
-const createMockDB = () => ({
-  prepare: mock((_query: string) => ({
-    get: mock((..._args: any[]) => ({}) as any),
-    all: mock((..._args: any[]) => [] as any[]),
-    run: mock((..._args: any[]) => ({ changes: 0 })),
-  })),
-  run: mock((_query: string) => ({ changes: 0 })),
-});
-
-export const getDBMock = mock(() => createMockDB());
-
-export const mockSqlite = () =>
-  mock.module("../../db/sqlite", () => ({
-    getDB: getDBMock,
   }));

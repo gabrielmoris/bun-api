@@ -45,7 +45,7 @@ export async function delAllBookmarkListCaches() {
 }
 
 export const cacheKeys = {
-  bookmarksById: (id: string) => `bookmarks:${id}`,
+  bookmarksById: (id: number) => `bookmarks:${id}`,
   bookmarksPage: (page: number, limit: number) =>
     `bookmarks:list:${page}:${limit}`,
 };

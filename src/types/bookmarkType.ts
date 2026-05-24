@@ -17,3 +17,8 @@ export interface IBookmark {
   created_at: string;
   updated_at: string;
 }
+
+export interface IDeletedBookmark {
+  deletedCount: number;
+  id: number;
+}

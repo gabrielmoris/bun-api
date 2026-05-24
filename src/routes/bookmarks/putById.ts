@@ -1,95 +1,46 @@
 import type { BunRequest } from "bun";
 import { modifyBookmarkById } from "../../services/modifyBookmarkById";
 import { updateBookmarkSchema } from "../../schemas/bookmarkSchema";
-import type { BookmarkType } from "../../types/bookmarkType";
+import type { IBookmark } from "../../types/bookmarkType";
 import { withCors } from "../../middleware/cors";
+import { createAppError } from "../../middleware/errorFactory";
+import { ApiErrorCode } from "../../types/errorType";
 
-export const putById = async (req: BunRequest) => {
-  try {
-    const { id } = req.params;
+export const putById = async (req: BunRequest): Promise<Response> => {
+  const { id } = req.params;
 
-    if (!id) {
-      return withCors(
-        req,
-        Response.json(
-          {
-            error: {
-              code: "UNKNOWN_ERROR",
-              message: "Bad Request",
-              details: [
-                {
-                  field: "unknown",
-                  message: "No id provided",
-                },
-              ],
-            },
-          },
-          { status: 400 },
-        ),
-      );
-    }
+  if (!id) {
+    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, "Bad Request", [
+      { field: "unknown", message: "No id provided" },
+    ]);
+  }
 
-    const rawBody: any = await req.json();
-    const result = updateBookmarkSchema.safeParse(rawBody);
+  const rawBody: unknown = await req.json();
+  const result = updateBookmarkSchema.safeParse(rawBody);
 
-    if (!result.success) {
-      return withCors(
-        req,
-        Response.json(
-          {
-            error: result.error?.issues,
-          },
-          { status: 400 },
-        ),
-      );
-    }
-
-    const body: Partial<BookmarkType> = result.data;
-
-    const { bookmark, error } = await modifyBookmarkById(id, body);
-
-    if (error) {
-      return withCors(
-        req,
-        Response.json(error, {
-          status:
-            error.code === "INVAILD_ID"
-              ? 400
-              : error.code === "NOT_FOUND"
-                ? 404
-                : 500,
-        }),
-      );
-    }
-
-    return withCors(
-      req,
-      Response.json(
-        {
-          success: true,
-          data: bookmark,
-        },
-        { status: 200 },
-      ),
-    );
-  } catch (e) {
-    return withCors(
-      req,
-      Response.json(
-        {
-          error: {
-            code: "UNKNOWN_ERROR",
-            message: e instanceof Error ? e.message : "Unknown error",
-            details: [
-              {
-                field: "unknown",
-                message: "Unknown error happened retrieving Bookmarks",
-              },
-            ],
-          },
-        },
-        { status: 500 },
-      ),
+  if (!result.success) {
+    throw createAppError(
+      ApiErrorCode.VALIDATION_ERROR,
+      400,
+      "Invalid request body",
+      result.error.issues.map((i) => ({
+        field: i.path.join("."),
+        message: i.message,
+      })),
     );
   }
+
+  const body: Partial<IBookmark> = result.data;
+  const bookmark = await modifyBookmarkById(Number(id), body);
+
+  return withCors(
+    req,
+    Response.json(
+      {
+        success: true,
+        data: bookmark,
+      },
+      { status: 200 },
+    ),
+  );
 };

@@ -1,57 +1,38 @@
+import type { IBookmark } from "../types/bookmarkType";
 import { delAllBookmarkListCaches, delKeys } from "../repositories/cache";
-import { deleteBookmark } from "../repositories/bookmarkRepository";
+import {
+  deleteBookmark,
+  findBookmarkById,
+} from "../repositories/bookmarkRepository";
+import { ApiErrorCode } from "../types/errorType";
+import { createAppError } from "../middleware/errorFactory";
 
-export const deleteBookmarkById = async (id: number) => {
-  try {
-    const numId = Number(id);
-    if (!id || isNaN(numId) || numId <= 0) {
-      return {
-        error: {
-          code: "INVALID_ID",
-          message: "The bookmark id provided is invalid",
-          details: [
-            {
-              field: "id",
-              message: "Expected a valid positive integer ID",
-            },
-          ],
-        },
-      };
-    }
+export const deleteBookmarkById = async (id: number): Promise<IBookmark> => {
+  const numId = Number(id);
 
-    const bookmark = deleteBookmark(id);
-
-    if (!bookmark) {
-      return {
-        error: {
-          code: "NOT_FOUND",
-          message: "This bookmark could not be found",
-          details: [
-            {
-              field: "id",
-              message: `No bookmark with id ${id}`,
-            },
-          ],
-        },
-      };
-    }
-
-    await delKeys(`bookmarks:${id}`);
-    await delAllBookmarkListCaches();
-
-    return { bookmark };
-  } catch (e) {
-    return {
-      error: {
-        code: "UNKNOWN_ERROR",
-        message: e instanceof Error ? e.message : "Unknown error",
-        details: [
-          {
-            field: "unknown",
-            message: "Unknown error happened retrieving Bookmark",
-          },
-        ],
-      },
-    };
+  if (!id || Number.isNaN(numId) || numId <= 0) {
+    throw createAppError(
+      ApiErrorCode.INVALID_ID,
+      400,
+      "The bookmark id provided is invalid",
+      [{ field: "id", message: "Expected a valid positive integer ID" }],
+    );
   }
+
+  const bookmark = findBookmarkById(numId);
+
+  if (!bookmark) {
+    throw createAppError(
+      ApiErrorCode.NOT_FOUND,
+      404,
+      "This bookmark could not be found",
+      [{ field: "id", message: `No bookmark with id ${numId}` }],
+    );
+  }
+
+  deleteBookmark(numId);
+  await delKeys(`bookmarks:${numId}`);
+  await delAllBookmarkListCaches();
+
+  return bookmark;
 };

@@ -1,7 +1,6 @@
 import type { IBookmark } from "../../types/bookmarkType";
 
-export const mockedBookmark: IBookmark = {
-  id: 1,
+export const mockedCreateBookmark: Partial<IBookmark> = {
   url: "https://www.test.com",
   title: "test",
   description: "test description",
