@@ -10,7 +10,6 @@ import { putById } from "./bookmarks/putById";
 
 type Handler = (req: BunRequest) => Response | Promise<Response>;
 
-// Compose middleware stack: rate-limit → error-handler → handler
 function withMiddleware(handler: Handler): Handler {
   return withRateLimit(withErrorHandler(handler));
 }
