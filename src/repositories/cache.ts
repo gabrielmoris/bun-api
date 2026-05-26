@@ -1,4 +1,4 @@
-import { redis } from "./redis";
+import { redis } from './redis';
 
 type CacheOptions<T> = {
   key: string;
@@ -6,11 +6,7 @@ type CacheOptions<T> = {
   loader: () => Promise<T>;
 };
 
-export async function getOrSet<T>({
-  key,
-  ttlSec,
-  loader,
-}: CacheOptions<T>): Promise<T> {
+export async function getOrSet<T>({ key, ttlSec, loader }: CacheOptions<T>): Promise<T> {
   try {
     const cached = await redis.get(key);
     if (cached) {
@@ -38,7 +34,7 @@ export async function delKeys(...keys: string[]) {
 }
 
 export async function delAllBookmarkListCaches() {
-  const keys = await redis.keys("bookmarks:list:*");
+  const keys = await redis.keys('bookmarks:list:*');
   if (keys.length) {
     await redis.del(...keys);
   }
@@ -46,6 +42,5 @@ export async function delAllBookmarkListCaches() {
 
 export const cacheKeys = {
   bookmarksById: (id: number) => `bookmarks:${id}`,
-  bookmarksPage: (page: number, limit: number) =>
-    `bookmarks:list:${page}:${limit}`,
+  bookmarksPage: (page: number, limit: number) => `bookmarks:list:${page}:${limit}`,
 };

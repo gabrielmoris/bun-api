@@ -1,15 +1,15 @@
-import { beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
-import { createBookmark } from "../../services/createBookmark";
+import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import { createBookmark } from '../../services/createBookmark';
 import {
   createBookmarkInDbMock,
   findBookmarkByUrlMock,
   mockBookmarkRepository,
-} from "../mocks/db.mock";
-import { delAllBookmarkListCachesMock, mockCache } from "../mocks/redis.mock";
-import { mockedCreateBookmark } from "../mocks/bookmarks.mock";
-import type { IBookmark } from "../../types/bookmarkType";
+} from '../mocks/db.mock';
+import { delAllBookmarkListCachesMock, mockCache } from '../mocks/redis.mock';
+import { mockedCreateBookmark } from '../mocks/bookmarks.mock';
+import type { IBookmark } from '../../types/bookmarkType';
 
-describe("createBookmark", () => {
+describe('createBookmark', () => {
   beforeAll(() => {
     mockBookmarkRepository();
     mockCache();
@@ -19,14 +19,12 @@ describe("createBookmark", () => {
     mock.clearAllMocks();
   });
 
-  test("creates a bookmark and clears list caches on success", async () => {
+  test('creates a bookmark and clears list caches on success', async () => {
     findBookmarkByUrlMock.mockReturnValueOnce(null);
 
     const result = await createBookmark(mockedCreateBookmark);
 
-    expect(findBookmarkByUrlMock).toHaveBeenCalledWith(
-      mockedCreateBookmark.url,
-    );
+    expect(findBookmarkByUrlMock).toHaveBeenCalledWith(mockedCreateBookmark.url);
     expect(createBookmarkInDbMock).toHaveBeenCalledWith(mockedCreateBookmark);
     expect(delAllBookmarkListCachesMock).toHaveBeenCalledTimes(1);
 
@@ -39,28 +37,26 @@ describe("createBookmark", () => {
     });
   });
 
-  test("throws DUPLICATED_ENTRY when the url already exists", async () => {
-    findBookmarkByUrlMock.mockReturnValueOnce(
-      mockedCreateBookmark as IBookmark,
-    );
+  test('throws DUPLICATED_ENTRY when the url already exists', async () => {
+    findBookmarkByUrlMock.mockReturnValueOnce(mockedCreateBookmark as IBookmark);
 
     expect(createBookmark(mockedCreateBookmark)).rejects.toMatchObject({
-      code: "DUPLICATED_ENTRY",
-      message: "This url is already in your database",
-      details: [{ field: "url", message: "Duplicated url" }],
+      code: 'DUPLICATED_ENTRY',
+      message: 'This url is already in your database',
+      details: [{ field: 'url', message: 'Duplicated url' }],
     });
 
     expect(createBookmarkInDbMock).not.toHaveBeenCalled();
     expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
   });
 
-  test("throws MISSING_ENTRY when required fields are omitted", async () => {
-    const incomplete = { url: "https://test.com" } as Partial<IBookmark>;
+  test('throws MISSING_ENTRY when required fields are omitted', async () => {
+    const incomplete = { url: 'https://test.com' } as Partial<IBookmark>;
 
     expect(createBookmark(incomplete)).rejects.toMatchObject({
-      code: "MISSING_ENTRY",
-      message: "Missing required field: title",
-      details: [{ field: "title", message: "title is required" }],
+      code: 'MISSING_ENTRY',
+      message: 'Missing required field: title',
+      details: [{ field: 'title', message: 'title is required' }],
     });
 
     expect(findBookmarkByUrlMock).not.toHaveBeenCalled();
@@ -68,15 +64,13 @@ describe("createBookmark", () => {
     expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
   });
 
-  test("propagates error when the repository throws", async () => {
+  test('propagates error when the repository throws', async () => {
     findBookmarkByUrlMock.mockReturnValueOnce(null);
     createBookmarkInDbMock.mockImplementationOnce(() => {
-      throw new Error("Database connection lost");
+      throw new Error('Database connection lost');
     });
 
-    expect(createBookmark(mockedCreateBookmark)).rejects.toThrow(
-      "Database connection lost",
-    );
+    expect(createBookmark(mockedCreateBookmark)).rejects.toThrow('Database connection lost');
 
     // Cache should NOT be cleared when the operation fails
     expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();

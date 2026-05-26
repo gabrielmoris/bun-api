@@ -1,23 +1,16 @@
 export function getCorsHeaders(req: Request): Headers {
-  const allowedOrigins = JSON.parse(
-    process.env.ALLOWED_ORIGINS ?? "[]",
-  ) as string[];
+  const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS ?? '[]') as string[];
 
-  const origin = req.headers.get("origin");
+  const origin = req.headers.get('origin');
   const allowedOrigin =
-    origin && allowedOrigins.includes(origin)
-      ? origin
-      : (allowedOrigins[0] ?? "");
+    origin && allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] ?? '');
 
   const headers = new Headers();
-  headers.set("Access-Control-Allow-Origin", allowedOrigin);
-  headers.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  );
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  headers.set("Access-Control-Allow-Credentials", "true");
-  headers.set("Vary", "Origin");
+  headers.set('Access-Control-Allow-Origin', allowedOrigin);
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  headers.set('Vary', 'Origin');
 
   return headers;
 }

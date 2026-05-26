@@ -1,17 +1,17 @@
-import type { BunRequest } from "bun";
-import { modifyBookmarkById } from "../../services/modifyBookmarkById";
-import { updateBookmarkSchema } from "../../schemas/bookmarkSchema";
-import type { IBookmark } from "../../types/bookmarkType";
-import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../repositories/errorFactory";
-import { ApiErrorCode } from "../../types/errorType";
+import type { BunRequest } from 'bun';
+import { modifyBookmarkById } from '../../services/modifyBookmarkById';
+import { updateBookmarkSchema } from '../../schemas/bookmarkSchema';
+import type { IBookmark } from '../../types/bookmarkType';
+import { withCors } from '../../middleware/cors';
+import { createAppError } from '../../repositories/errorFactory';
+import { ApiErrorCode } from '../../types/errorType';
 
 export const putById = async (req: BunRequest): Promise<Response> => {
   const { id } = req.params;
 
   if (!id) {
-    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, "Bad Request", [
-      { field: "unknown", message: "No id provided" },
+    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, 'Bad Request', [
+      { field: 'unknown', message: 'No id provided' },
     ]);
   }
 
@@ -22,11 +22,11 @@ export const putById = async (req: BunRequest): Promise<Response> => {
     throw createAppError(
       ApiErrorCode.VALIDATION_ERROR,
       400,
-      "Invalid request body",
-      result.error.issues.map((i) => ({
-        field: i.path.join("."),
+      'Invalid request body',
+      result.error.issues.map(i => ({
+        field: i.path.join('.'),
         message: i.message,
-      })),
+      }))
     );
   }
 
@@ -40,7 +40,7 @@ export const putById = async (req: BunRequest): Promise<Response> => {
         success: true,
         data: bookmark,
       },
-      { status: 200 },
-    ),
+      { status: 200 }
+    )
   );
 };

@@ -1,15 +1,15 @@
-import type { BunRequest } from "bun";
-import { deleteBookmarkById } from "../../services/deleteBookmarkById";
-import { withCors } from "../../middleware/cors";
-import { createAppError } from "../../repositories/errorFactory";
-import { ApiErrorCode } from "../../types/errorType";
+import type { BunRequest } from 'bun';
+import { deleteBookmarkById } from '../../services/deleteBookmarkById';
+import { withCors } from '../../middleware/cors';
+import { createAppError } from '../../repositories/errorFactory';
+import { ApiErrorCode } from '../../types/errorType';
 
 export const deleteById = async (req: BunRequest): Promise<Response> => {
   const { id } = req.params;
 
   if (!id) {
-    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, "Bad Request", [
-      { field: "unknown", message: "No id provided" },
+    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, 'Bad Request', [
+      { field: 'unknown', message: 'No id provided' },
     ]);
   }
 
@@ -22,7 +22,7 @@ export const deleteById = async (req: BunRequest): Promise<Response> => {
         success: true,
         data: bookmark,
       },
-      { status: 200 },
-    ),
+      { status: 200 }
+    )
   );
 };

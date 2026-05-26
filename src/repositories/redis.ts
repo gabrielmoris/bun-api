@@ -1,4 +1,4 @@
-import { RedisClient } from "bun";
+import { RedisClient } from 'bun';
 
 export const redis = new RedisClient(process.env.REDIS_URL!, {
   connectionTimeout: 1000,
@@ -10,9 +10,9 @@ export const redis = new RedisClient(process.env.REDIS_URL!, {
 });
 
 redis.onconnect = () => {
-  console.log("Redis connected");
+  console.log('Redis connected');
 };
 
-redis.onclose = (error) => {
-  console.error("Redis disconnected", error);
+redis.onclose = error => {
+  console.error('Redis disconnected', error);
 };

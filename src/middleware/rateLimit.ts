@@ -1,6 +1,6 @@
 // src/middleware/rateLimit.ts (or src/repositories/rateLimit.ts)
-import type { BunRequest } from "bun";
-import { redis } from "../repositories/redis";
+import type { BunRequest } from 'bun';
+import { redis } from '../repositories/redis';
 
 const LIMIT = 100; // max requests
 const WINDOW_S = 60; // per 60 seconds
@@ -27,15 +27,13 @@ async function hitSlidingWindow(key: string): Promise<number> {
 
 function getClientId(req: BunRequest): string {
   return (
-    req?.headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("cf-connecting-ip") ??
-    "unknown"
+    req?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    req.headers.get('cf-connecting-ip') ??
+    'unknown'
   );
 }
 
-export function withRateLimit(
-  handler: (req: BunRequest) => Response | Promise<Response>,
-) {
+export function withRateLimit(handler: (req: BunRequest) => Response | Promise<Response>) {
   return async (req: BunRequest): Promise<Response> => {
     const ip = getClientId(req);
     const key = `rl:${ip}`;
@@ -44,20 +42,20 @@ export function withRateLimit(
     const remaining = Math.max(0, LIMIT - count);
 
     if (count > LIMIT) {
-      return new Response("Too Many Requests", {
+      return new Response('Too Many Requests', {
         status: 429,
         headers: {
-          "Retry-After": String(WINDOW_S),
-          "X-RateLimit-Limit": String(LIMIT),
-          "X-RateLimit-Remaining": "0",
+          'Retry-After': String(WINDOW_S),
+          'X-RateLimit-Limit': String(LIMIT),
+          'X-RateLimit-Remaining': '0',
         },
       });
     }
 
     const res = await handler(req);
     const headers = new Headers(res.headers);
-    headers.set("X-RateLimit-Limit", String(LIMIT));
-    headers.set("X-RateLimit-Remaining", String(remaining));
+    headers.set('X-RateLimit-Limit', String(LIMIT));
+    headers.set('X-RateLimit-Remaining', String(remaining));
 
     return new Response(res.body, {
       status: res.status,

@@ -1,5 +1,5 @@
-import type { IBookmark, RawBookmark } from "../types/bookmarkType";
-import { getDB } from "./sqlite";
+import type { IBookmark, RawBookmark } from '../types/bookmarkType';
+import { getDB } from './sqlite';
 
 export function initBookmarksTable() {
   const db = getDB();
@@ -17,5 +17,5 @@ export function initBookmarksTable() {
 }
 
 export function deserialize(row: RawBookmark): IBookmark {
-  return { ...row, tags: JSON.parse(row.tags ?? "[]") };
+  return { ...row, tags: JSON.parse(row.tags ?? '[]') };
 }
