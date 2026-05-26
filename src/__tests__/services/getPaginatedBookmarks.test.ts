@@ -1,31 +1,21 @@
-import { expect, test, describe, beforeAll } from "bun:test";
-import {
-  mockBookmarkModel,
-  mockConnectDB,
-  findMock,
-  skipMock,
-  limitMock,
-  leanMock,
-  countDocumentsMock,
-} from "../mocks/db.mock";
-import { mockedBookmarks } from "../mocks/bookmarks.mock";
-import { getPaginatedBookmarks } from "../../services/getPaginatedBookmarks";
+import { expect, test, describe, beforeAll } from 'bun:test';
+import { mockedBookmarks } from '../mocks/bookmarks.mock';
+import { getPaginatedBookmarks } from '../../services/getPaginatedBookmarks';
+import { findPaginatedBookmarksMock, mockBookmarkRepository } from '../mocks/db.mock';
+import { getOrSetMock, mockCache } from '../mocks/redis.mock';
 
-describe("Bookmarks creation", () => {
+describe('Bookmarks creation', () => {
   beforeAll(() => {
-    mockConnectDB();
-    mockBookmarkModel();
+    mockBookmarkRepository();
+    mockCache();
   });
 
-  test("It gets the all the bookmarks", async () => {
-    leanMock.mockResolvedValueOnce(mockedBookmarks);
-    countDocumentsMock.mockResolvedValueOnce(3);
-
+  test('It gets the all the bookmarks', async () => {
     const result = await getPaginatedBookmarks(1, 10);
 
-    expect(findMock).toHaveBeenCalledWith({});
-    expect(skipMock).toHaveBeenCalledWith(0);
-    expect(limitMock).toHaveBeenCalledWith(10);
+    expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(0, 10); // Skip is page-1
+
+    expect(getOrSetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,
@@ -33,15 +23,11 @@ describe("Bookmarks creation", () => {
     });
   });
 
-  test("It gets the first page with limit 1", async () => {
-    leanMock.mockResolvedValueOnce([mockedBookmarks[0]]);
-    countDocumentsMock.mockResolvedValueOnce(3);
-
+  test('It gets the first page with limit 1', async () => {
     const result = await getPaginatedBookmarks(1, 1);
 
-    expect(findMock).toHaveBeenCalledWith({});
-    expect(skipMock).toHaveBeenCalledWith(0);
-    expect(limitMock).toHaveBeenCalledWith(1);
+    expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(0, 1);
+    expect(getOrSetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,
@@ -49,15 +35,11 @@ describe("Bookmarks creation", () => {
     });
   });
 
-  test("It gets the second page with limit 1", async () => {
-    leanMock.mockResolvedValueOnce([mockedBookmarks[1]]);
-    countDocumentsMock.mockResolvedValueOnce(3);
-
+  test('It gets the second page with limit 1', async () => {
     const result = await getPaginatedBookmarks(2, 1);
 
-    expect(findMock).toHaveBeenCalledWith({});
-    expect(skipMock).toHaveBeenCalledWith(0);
-    expect(limitMock).toHaveBeenCalledWith(1);
+    expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(1, 1);
+    expect(getOrSetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,
@@ -65,23 +47,23 @@ describe("Bookmarks creation", () => {
     });
   });
 
-  test("Sends proper error structure when it fails", async () => {
-    mockConnectDB(true);
-    mockBookmarkModel();
+  test('Sends proper error structure when it fails', async () => {
+    mockBookmarkRepository();
 
-    const result = await getPaginatedBookmarks(1, 1);
-
-    expect(result).toEqual({
-      error: {
-        code: "UNKNOWN_ERROR",
-        message: "Mocked DB Error",
-        details: [
-          {
-            field: "unknown",
-            message: "Unknown error happened retrieving Bookmarks",
-          },
-        ],
-      },
+    expect(getPaginatedBookmarks(-1, 0)).rejects.toMatchObject({
+      code: 'BAD_REQUEST',
+      message: 'Wrong required fields: page, limit',
+      details: [
+        {
+          field: 'page',
+          message: 'Page must be a positive integer',
+        },
+        {
+          field: 'limit',
+          message: 'Limit must be a positive integer',
+        },
+      ],
+      statusCode: 400,
     });
   });
 });

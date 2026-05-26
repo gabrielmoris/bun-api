@@ -1,60 +1,37 @@
-import mongoose from "mongoose";
+import type { IBookmark } from "../types/bookmarkType";
 import { cacheKeys, getOrSet } from "../repositories/cache";
 import { findBookmarkById } from "../repositories/bookmarkRepository";
+import { ApiErrorCode } from "../types/errorType";
+import { createAppError } from "../repositories/errorFactory";
 
-export const getBookmarkById = async (id: string) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return {
-        error: {
-          code: "INVALID_ID",
-          message: "The bookmark id provided is invalid",
-          details: [
-            {
-              field: "id",
-              message: "Expected a valid MongoDB ObjectId",
-            },
-          ],
-        },
-      };
-    }
+export const getBookmarkById = async (id: number): Promise<IBookmark> => {
+  const numId = Number(id);
 
-    return await getOrSet({
-      key: cacheKeys.bookmarksById(id),
-      ttlSec: 30,
-      loader: async () => {
-        const bookmark = await findBookmarkById(id);
-
-        if (!bookmark) {
-          return {
-            error: {
-              code: "NOT_FOUND",
-              message: "This bookmark could not be found",
-              details: [
-                {
-                  field: "id",
-                  message: `No bookmark with id ${id}`,
-                },
-              ],
-            },
-          };
-        }
-
-        return { bookmark };
-      },
-    });
-  } catch (e) {
-    return {
-      error: {
-        code: "UNKNOWN_ERROR",
-        message: e instanceof Error ? e.message : "Unknown error",
-        details: [
-          {
-            field: "unknown",
-            message: "Unknown error happened retrieving Bookmark",
-          },
-        ],
-      },
-    };
+  if (!id || isNaN(numId) || numId <= 0) {
+    throw createAppError(
+      ApiErrorCode.INVALID_ID,
+      400,
+      "The bookmark id provided is invalid",
+      [{ field: "id", message: "Expected a valid positive integer ID" }],
+    );
   }
+
+  return getOrSet({
+    key: cacheKeys.bookmarksById(numId),
+    ttlSec: 30,
+    loader: async () => {
+      const bookmark = findBookmarkById(numId);
+
+      if (!bookmark) {
+        throw createAppError(
+          ApiErrorCode.NOT_FOUND,
+          404,
+          "This bookmark could not be found",
+          [{ field: "id", message: `No bookmark with id ${numId}` }],
+        );
+      }
+
+      return bookmark;
+    },
+  });
 };

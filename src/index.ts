@@ -1,10 +1,13 @@
 import { serve } from "bun";
 import { routes } from "./routes";
+import { initBookmarksTable } from "./db/bookmarkModel";
+
+initBookmarksTable();
 
 const server = serve({
   port: 3000,
   routes,
-  fetch(req) {
+  fetch(_req) {
     return new Response("Not Found", { status: 404 });
   },
 });

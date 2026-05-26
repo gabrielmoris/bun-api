@@ -1,63 +1,62 @@
-import { mock } from "bun:test";
-import { mockedBookmarks } from "./bookmarks.mock";
-import type { BookmarkType } from "../../types/bookmarkType";
+import { mock } from 'bun:test';
+import { mockedBookmarks } from './bookmarks.mock';
+import type { IBookmark, IDeletedBookmark } from '../../types/bookmarkType';
 
-export const mockConnectDB = (shouldFail = false) =>
-  mock.module("../../db/mongo.ts", () => ({
-    connectDB: shouldFail
-      ? mock(async () => {
-          throw new Error("Mocked DB Error");
-        })
-      : connectDBMock,
-  }));
+// =====================
+// Bookmark Repository Mocks
+// =====================
 
-export const connectDBMock = mock(async () => ({ fake: "connection" }));
-export const findOneMock = mock(async (_query: any): Promise<any> => null);
-export const leanMock = mock((): Promise<any[]> => Promise.resolve([]));
-export const limitMock = mock((_limit: number) => ({ lean: leanMock }));
-export const skipMock = mock((_skip: number) => ({ limit: limitMock }));
-export const sortMock = mock((_sort: any) => ({ skip: skipMock }));
-export const findMock = mock((_query: any) => ({ sort: sortMock }));
-export const findByIdMock = mock(async (id: string): Promise<any> => {
-  return mockedBookmarks.find((b) => b._id === id) ?? null;
+export const findBookmarkByUrlMock = mock((url: string): IBookmark | null => {
+  return mockedBookmarks.find(b => b.url === url) ?? null;
 });
-export const findByIdAndUpdateMock = mock(
-  async (
-    id: string,
-    update: Partial<BookmarkType>,
-    _options?: any,
-  ): Promise<any> => {
-    const foundBookmark = mockedBookmarks.find((b) => b._id === id);
+
+export const createBookmarkInDbMock = mock(
+  (data: IBookmark): IBookmark => ({
+    ...data,
+    id: 999,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  })
+);
+
+export const findBookmarkByIdMock = mock((id: number): IBookmark | null => {
+  return mockedBookmarks.find(b => b.id === id) ?? null;
+});
+
+export const findAndUpdateBookmarkMock = mock(
+  (id: number, update: Partial<IBookmark>): IBookmark | null => {
+    const foundBookmark = mockedBookmarks.find(b => b.id === id);
+
     if (!foundBookmark) return null;
 
-    return { ...foundBookmark, ...update };
-  },
-);
-export const deleteOneMock = mock(
-  async (filter: { _id: string }): Promise<any> => {
-    const targetDeleted = mockedBookmarks.find((b) => b._id === filter._id);
-    if (!targetDeleted) return null;
-
-    return targetDeleted;
-  },
+    return {
+      ...foundBookmark,
+      ...update,
+      updated_at: new Date().toISOString(),
+    };
+  }
 );
 
-export const countDocumentsMock = mock(async () => 3);
+export const deleteBookmarkMock = mock((id: number): IDeletedBookmark => {
+  const found = mockedBookmarks.find(b => b.id === id);
+  return { deletedCount: found ? 1 : 0, id };
+});
 
-export const createMock = mock(async (bookmark: any) => ({
-  _id: "fake-id-123",
-  ...bookmark,
-}));
+export const findPaginatedBookmarksMock = mock(
+  (skip: number, limit: number): { total: number; bookmarks: IBookmark[] } => {
+    return {
+      total: mockedBookmarks.length,
+      bookmarks: mockedBookmarks.slice(skip, skip + limit),
+    };
+  }
+);
 
-export const mockBookmarkModel = () =>
-  mock.module("../../db/bookmarkModel", () => ({
-    default: {
-      findOne: findOneMock,
-      create: createMock,
-      find: findMock,
-      countDocuments: countDocumentsMock,
-      findById: findByIdMock,
-      findByIdAndUpdate: findByIdAndUpdateMock,
-      deleteOne: deleteOneMock,
-    },
+export const mockBookmarkRepository = () =>
+  mock.module('../../repositories/bookmarkRepository', () => ({
+    findBookmarkByUrl: findBookmarkByUrlMock,
+    createBookmarkInDb: createBookmarkInDbMock,
+    findBookmarkById: findBookmarkByIdMock,
+    findAndUpdateBookmark: findAndUpdateBookmarkMock,
+    deleteBookmark: deleteBookmarkMock,
+    findPaginatedBookmarks: findPaginatedBookmarksMock,
   }));

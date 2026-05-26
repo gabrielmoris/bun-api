@@ -1,17 +1,20 @@
-import { expect, test, describe, beforeAll, beforeEach, mock } from "bun:test";
+import { beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { deleteBookmarkById } from "../../services/deleteBookmarkById";
 import {
-  mockBookmarkModel,
-  mockConnectDB,
-  deleteOneMock,
+  mockCache,
+  delAllBookmarkListCachesMock,
+  delKeysMock,
+} from "../mocks/redis.mock";
+import {
+  deleteBookmarkMock,
+  findBookmarkByIdMock,
+  mockBookmarkRepository,
 } from "../mocks/db.mock";
 import { mockedBookmarks } from "../mocks/bookmarks.mock";
-import { deleteBookmarkById } from "../../services/deleteBookmarkById";
-import { mockCache } from "../mocks/redis.mock";
 
-describe("Bookmarks creation", () => {
+describe("deleteBookmarkById", () => {
   beforeAll(() => {
-    mockConnectDB();
-    mockBookmarkModel();
+    mockBookmarkRepository();
     mockCache();
   });
 
@@ -19,56 +22,56 @@ describe("Bookmarks creation", () => {
     mock.clearAllMocks();
   });
 
-  test("It deletes a Bookmark by ID", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d8d");
-    const oldBookmark = { ...mockedBookmarks[0] };
+  test("deletes a bookmark by ID and invalidates caches", async () => {
+    const bookmarkToDelete = mockedBookmarks[0];
 
-    expect(deleteOneMock).toHaveBeenCalledWith({
-      _id: "69fcf6c34eb330810c7f6d8d",
-    });
+    if (!bookmarkToDelete) {
+      throw new Error("Test setup failed: mockedBookmarks[0] is missing");
+    }
 
-    expect(result).toMatchObject({
-      bookmark: oldBookmark,
-    });
+    findBookmarkByIdMock.mockReturnValueOnce(bookmarkToDelete);
+
+    const result = await deleteBookmarkById(bookmarkToDelete.id);
+
+    expect(findBookmarkByIdMock).toHaveBeenCalledWith(bookmarkToDelete.id);
+    expect(deleteBookmarkMock).toHaveBeenCalledWith(bookmarkToDelete.id);
+    expect(delKeysMock).toHaveBeenCalledWith(
+      `bookmarks:${bookmarkToDelete.id}`,
+    );
+    expect(delAllBookmarkListCachesMock).toHaveBeenCalledTimes(1);
+
+    expect(result).toEqual(bookmarkToDelete);
   });
 
-  test("It fails with the proper error if the ID is not valid", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d8ds");
-
-    expect(deleteOneMock).not.toHaveBeenCalled();
-
-    expect(result).toEqual({
-      error: {
+  test("throws INVALID_ID when the id is not a valid positive integer", async () => {
+    expect(deleteBookmarkById("sorry" as unknown as number)).rejects.toEqual(
+      expect.objectContaining({
         code: "INVALID_ID",
         message: "The bookmark id provided is invalid",
         details: [
-          {
-            field: "id",
-            message: "Expected a valid MongoDB ObjectId",
-          },
+          { field: "id", message: "Expected a valid positive integer ID" },
         ],
-      },
-    });
+      }),
+    );
+
+    expect(findBookmarkByIdMock).not.toHaveBeenCalled();
+    expect(deleteBookmarkMock).not.toHaveBeenCalled();
+    expect(delKeysMock).not.toHaveBeenCalled();
+    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
   });
 
-  test("Sends proper error when there is no Bookmark with that ID", async () => {
-    const result = await deleteBookmarkById("69fcf6c34eb330810c7f6d6d");
+  test("throws NOT_FOUND when no bookmark exists with the given id", async () => {
+    findBookmarkByIdMock.mockReturnValueOnce(null);
 
-    expect(deleteOneMock).toHaveBeenCalledWith({
-      _id: "69fcf6c34eb330810c7f6d6d",
+    expect(deleteBookmarkById(999)).rejects.toMatchObject({
+      code: "NOT_FOUND",
+      message: "This bookmark could not be found",
+      details: [{ field: "id", message: "No bookmark with id 999" }],
     });
 
-    expect(result).toEqual({
-      error: {
-        code: "NOT_FOUND",
-        message: "This bookmark could not be found",
-        details: [
-          {
-            field: "id",
-            message: "No bookmark with id 69fcf6c34eb330810c7f6d6d",
-          },
-        ],
-      },
-    });
+    expect(findBookmarkByIdMock).toHaveBeenCalledWith(999);
+    expect(deleteBookmarkMock).not.toHaveBeenCalled();
+    expect(delKeysMock).not.toHaveBeenCalled();
+    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
   });
 });

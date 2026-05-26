@@ -1,45 +1,21 @@
-import mongoose, { Document, Schema, Model } from "mongoose";
+import type { IBookmark, RawBookmark } from "../types/bookmarkType";
+import { getDB } from "./sqlite";
 
-export interface IBookmark extends Document {
-  url: string;
-  title: string;
-  description?: string;
-  tags?: string[];
-  createdAt: Date;
-  updatedAt: Date;
+export function initBookmarksTable() {
+  const db = getDB();
+  db.run(`
+    CREATE TABLE IF NOT EXISTS bookmarks (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      url         TEXT    NOT NULL UNIQUE,
+      title       TEXT    NOT NULL,
+      description TEXT,
+      tags        TEXT    DEFAULT '[]',  -- JSON-serialized string[]
+      created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+      updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
 }
 
-const bookmarkSchema = new Schema<IBookmark>(
-  {
-    url: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    tags: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-  },
-  {
-    timestamps: true,
-  },
-);
-
-const Bookmark: Model<IBookmark> =
-  (mongoose.models.Bookmark as Model<IBookmark>) ||
-  mongoose.model<IBookmark>("Bookmark", bookmarkSchema);
-
-export default Bookmark;
+export function deserialize(row: RawBookmark): IBookmark {
+  return { ...row, tags: JSON.parse(row.tags ?? "[]") };
+}

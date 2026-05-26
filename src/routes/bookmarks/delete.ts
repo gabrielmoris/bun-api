@@ -1,76 +1,28 @@
 import type { BunRequest } from "bun";
 import { deleteBookmarkById } from "../../services/deleteBookmarkById";
 import { withCors } from "../../middleware/cors";
+import { createAppError } from "../../repositories/errorFactory";
+import { ApiErrorCode } from "../../types/errorType";
 
-export const deleteById = async (req: BunRequest) => {
-  try {
-    const { id } = req.params;
+export const deleteById = async (req: BunRequest): Promise<Response> => {
+  const { id } = req.params;
 
-    if (!id) {
-      return withCors(
-        req,
-        Response.json(
-          {
-            error: {
-              code: "UNKNOWN_ERROR",
-              message: "Bad Request",
-              details: [
-                {
-                  field: "unknown",
-                  message: "No id provided",
-                },
-              ],
-            },
-          },
-          { status: 400 },
-        ),
-      );
-    }
-
-    const { bookmark, error } = await deleteBookmarkById(id);
-
-    if (error) {
-      return withCors(
-        req,
-        Response.json(error, {
-          status:
-            error.code === "INVAILD_ID"
-              ? 400
-              : error.code === "NOT_FOUND"
-                ? 404
-                : 500,
-        }),
-      );
-    }
-
-    return withCors(
-      req,
-      Response.json(
-        {
-          success: true,
-          data: bookmark,
-        },
-        { status: 200 },
-      ),
-    );
-  } catch (e) {
-    return withCors(
-      req,
-      Response.json(
-        {
-          error: {
-            code: "UNKNOWN_ERROR",
-            message: e instanceof Error ? e.message : "Unknown error",
-            details: [
-              {
-                field: "unknown",
-                message: "Unknown error happened retrieving Bookmarks",
-              },
-            ],
-          },
-        },
-        { status: 500 },
-      ),
-    );
+  if (!id) {
+    throw createAppError(ApiErrorCode.BAD_REQUEST, 400, "Bad Request", [
+      { field: "unknown", message: "No id provided" },
+    ]);
   }
+
+  const bookmark = await deleteBookmarkById(Number(id));
+
+  return withCors(
+    req,
+    Response.json(
+      {
+        success: true,
+        data: bookmark,
+      },
+      { status: 200 },
+    ),
+  );
 };

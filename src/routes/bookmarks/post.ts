@@ -1,56 +1,31 @@
 import type { BunRequest } from "bun";
 import { createBookmarkSchema } from "../../schemas/bookmarkSchema";
-import type { BookmarkType } from "../../types/bookmarkType";
 import { createBookmark } from "../../services/createBookmark";
 import { withCors } from "../../middleware/cors";
+import { createAppError } from "../../repositories/errorFactory";
+import { ApiErrorCode } from "../../types/errorType";
 
-export const postBookmark = async (req: BunRequest) => {
-  try {
-    const rawBody: unknown = await req.json();
+export const postBookmark = async (req: BunRequest): Promise<Response> => {
+  const rawBody: unknown = await req.json();
 
-    const result = createBookmarkSchema.safeParse(rawBody);
+  const result = createBookmarkSchema.safeParse(rawBody);
 
-    if (!result.success) {
-      return withCors(
-        req,
-        Response.json(
-          {
-            error: result.error.issues,
-          },
-          { status: 400 },
-        ),
-      );
-    }
-
-    const body: BookmarkType = result.data;
-    const { error, data } = await createBookmark(body);
-
-    if (error) {
-      return withCors(req, Response.json(error, { status: 409 }));
-    }
-
-    return withCors(
-      req,
-      Response.json({ created: true, ...data }, { status: 201 }),
-    );
-  } catch (e) {
-    return withCors(
-      req,
-      Response.json(
-        {
-          error: {
-            code: "UNKNOWN_ERROR",
-            message: e instanceof Error ? e.message : "Unknown error",
-            details: [
-              {
-                field: "unknown",
-                message: "Unknown error happened saving a Bookmark",
-              },
-            ],
-          },
-        },
-        { status: 500 },
-      ),
+  if (!result.success) {
+    throw createAppError(
+      ApiErrorCode.VALIDATION_ERROR,
+      400,
+      "Invalid request body",
+      result.error.issues.map((i) => ({
+        field: i.path.join("."),
+        message: i.message,
+      })),
     );
   }
+
+  const bookmark = await createBookmark(result.data);
+
+  return withCors(
+    req,
+    Response.json({ created: true, ...bookmark }, { status: 201 }),
+  );
 };
