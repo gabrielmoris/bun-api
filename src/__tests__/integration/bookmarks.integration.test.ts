@@ -1,4 +1,3 @@
-// src/__tests__/integration/bookmarks.integration.test.ts
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
 import { routes } from '../../routes';
 import { serve } from 'bun';
