@@ -34,3 +34,6 @@ src/
 
 ### Documentation
 https://bun.sh/docs/runtime/http/server
+
+### Decisions
+I chose SQLite instead of PostgreSQL/Redis because this project targets a single-instance deployment and prioritizes operational simplicity, cost, and portability. Bun provides built-in SQLite support, which reduces infrastructure dependencies while still allowing structured persistence, caching, and rate limiting in one embedded store. This tradeoff is appropriate for a small API on free or low-cost hosting with persistent disk, but I would switch to PostgreSQL plus Redis if the service needed horizontal scaling, shared cache state, or higher write concurrency across multiple instances.
