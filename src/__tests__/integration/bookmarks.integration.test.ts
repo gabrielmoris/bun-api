@@ -1,16 +1,24 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
-import { routes } from '../../routes';
 import { serve } from 'bun';
-// TODO: refactor after change of rate limiter to sqlite
+process.env.DATABASE_PATH = '../../../dataTests/test-bookmarks.db';
+
+const { routes } = await import('../../routes');
+const { initBookmarksTable } = await import('../../db/bookmarkModel');
+const { initRateLimitTable } = await import('../../db/rateLimitModel');
+const { initCacheTable } = await import('../../db/cacheModel');
+
 let server: ReturnType<typeof serve>;
 
 beforeAll(() => {
+  initBookmarksTable();
+  initRateLimitTable();
+  initCacheTable();
   server = serve({ port: 3000, routes });
 });
 
 afterAll(() => server.stop());
 
-describe.skip('POST /bookmarks', () => {
+describe('POST /bookmarks', () => {
   test('returns 201 with valid body', async () => {
     const res = await fetch(`http://localhost:${server.port}/bookmarks`, {
       method: 'POST',

@@ -1,4 +1,4 @@
-import { delAllBookmarkListCaches } from '../repositories/cache';
+import { delAllBookmarkListCaches } from '../middleware/cache';
 import { createBookmarkInDb, findBookmarkByUrl } from '../repositories/bookmarkRepository';
 import type { IBookmark } from '../types/bookmarkType';
 import { ApiErrorCode } from '../types/errorType';

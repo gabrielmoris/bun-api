@@ -1,15 +1,13 @@
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { deleteBookmarkById } from '../../services/deleteBookmarkById';
-import { mockCache, delAllBookmarkListCachesMock, delKeysMock } from '../mocks/redis.mock';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { deleteBookmarkMock, findBookmarkByIdMock, mockBookmarkRepository } from '../mocks/db.mock';
 import { mockedBookmarks } from '../mocks/bookmarks.mock';
+import { cacheDelMock, cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
 
+mockBookmarkRepository();
+mockCacheRepository();
+
+const { deleteBookmarkById } = await import('../../services/deleteBookmarkById');
 describe('deleteBookmarkById', () => {
-  beforeAll(() => {
-    mockBookmarkRepository();
-    mockCache();
-  });
-
   beforeEach(() => {
     mock.clearAllMocks();
   });
@@ -27,8 +25,8 @@ describe('deleteBookmarkById', () => {
 
     expect(findBookmarkByIdMock).toHaveBeenCalledWith(bookmarkToDelete.id);
     expect(deleteBookmarkMock).toHaveBeenCalledWith(bookmarkToDelete.id);
-    expect(delKeysMock).toHaveBeenCalledWith(`bookmarks:${bookmarkToDelete.id}`);
-    expect(delAllBookmarkListCachesMock).toHaveBeenCalledTimes(1);
+    expect(cacheDelMock).toHaveBeenCalledWith(`bookmarks:${bookmarkToDelete.id}`);
+    expect(cacheDelPatternMock).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual(bookmarkToDelete);
   });
@@ -44,8 +42,8 @@ describe('deleteBookmarkById', () => {
 
     expect(findBookmarkByIdMock).not.toHaveBeenCalled();
     expect(deleteBookmarkMock).not.toHaveBeenCalled();
-    expect(delKeysMock).not.toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 
   test('throws NOT_FOUND when no bookmark exists with the given id', async () => {
@@ -59,7 +57,7 @@ describe('deleteBookmarkById', () => {
 
     expect(findBookmarkByIdMock).toHaveBeenCalledWith(999);
     expect(deleteBookmarkMock).not.toHaveBeenCalled();
-    expect(delKeysMock).not.toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 });

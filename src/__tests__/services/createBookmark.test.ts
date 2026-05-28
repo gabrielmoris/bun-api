@@ -1,20 +1,19 @@
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { createBookmark } from '../../services/createBookmark';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import {
   createBookmarkInDbMock,
   findBookmarkByUrlMock,
   mockBookmarkRepository,
 } from '../mocks/db.mock';
-import { delAllBookmarkListCachesMock, mockCache } from '../mocks/redis.mock';
 import { mockedCreateBookmark } from '../mocks/bookmarks.mock';
 import type { IBookmark } from '../../types/bookmarkType';
+import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
+
+mockBookmarkRepository();
+mockCacheRepository();
+
+const { createBookmark } = await import('../../services/createBookmark');
 
 describe('createBookmark', () => {
-  beforeAll(() => {
-    mockBookmarkRepository();
-    mockCache();
-  });
-
   beforeEach(() => {
     mock.clearAllMocks();
   });
@@ -26,7 +25,7 @@ describe('createBookmark', () => {
 
     expect(findBookmarkByUrlMock).toHaveBeenCalledWith(mockedCreateBookmark.url);
     expect(createBookmarkInDbMock).toHaveBeenCalledWith(mockedCreateBookmark);
-    expect(delAllBookmarkListCachesMock).toHaveBeenCalledTimes(1);
+    expect(cacheDelPatternMock).toHaveBeenCalledTimes(1);
 
     expect(result).toMatchObject({
       id: 999,
@@ -40,20 +39,20 @@ describe('createBookmark', () => {
   test('throws DUPLICATED_ENTRY when the url already exists', async () => {
     findBookmarkByUrlMock.mockReturnValueOnce(mockedCreateBookmark as IBookmark);
 
-    expect(createBookmark(mockedCreateBookmark)).rejects.toMatchObject({
+    await expect(createBookmark(mockedCreateBookmark)).rejects.toMatchObject({
       code: 'DUPLICATED_ENTRY',
       message: 'This url is already in your database',
       details: [{ field: 'url', message: 'Duplicated url' }],
     });
 
     expect(createBookmarkInDbMock).not.toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 
   test('throws MISSING_ENTRY when required fields are omitted', async () => {
     const incomplete = { url: 'https://test.com' } as Partial<IBookmark>;
 
-    expect(createBookmark(incomplete)).rejects.toMatchObject({
+    await expect(createBookmark(incomplete)).rejects.toMatchObject({
       code: 'MISSING_ENTRY',
       message: 'Missing required field: title',
       details: [{ field: 'title', message: 'title is required' }],
@@ -61,7 +60,7 @@ describe('createBookmark', () => {
 
     expect(findBookmarkByUrlMock).not.toHaveBeenCalled();
     expect(createBookmarkInDbMock).not.toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 
   test('propagates error when the repository throws', async () => {
@@ -70,9 +69,8 @@ describe('createBookmark', () => {
       throw new Error('Database connection lost');
     });
 
-    expect(createBookmark(mockedCreateBookmark)).rejects.toThrow('Database connection lost');
+    await expect(createBookmark(mockedCreateBookmark)).rejects.toThrow('Database connection lost');
 
-    // Cache should NOT be cleared when the operation fails
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 });

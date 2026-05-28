@@ -11,14 +11,4 @@ services:
     working_dir: /app
     command: bun run --watch src/index.ts
     environment:
-      REDIS_URL: redis://redis:6379
       CORS_ALLOWED_ORIGINS: '["*"]'
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
-volumes:
-  mongo_data:
-

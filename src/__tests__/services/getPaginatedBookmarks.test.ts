@@ -1,13 +1,16 @@
-import { expect, test, describe, beforeAll } from 'bun:test';
-import { mockedBookmarks } from '../mocks/bookmarks.mock';
-import { getPaginatedBookmarks } from '../../services/getPaginatedBookmarks';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { findPaginatedBookmarksMock, mockBookmarkRepository } from '../mocks/db.mock';
-import { getOrSetMock, mockCache } from '../mocks/redis.mock';
+import { mockedBookmarks } from '../mocks/bookmarks.mock';
+import { cacheGetMock, mockCacheRepository } from '../mocks/cache.mock';
+
+mockBookmarkRepository();
+mockCacheRepository();
+
+const { getPaginatedBookmarks } = await import('../../services/getPaginatedBookmarks');
 
 describe('Bookmarks creation', () => {
-  beforeAll(() => {
-    mockBookmarkRepository();
-    mockCache();
+  beforeEach(() => {
+    mock.clearAllMocks();
   });
 
   test('It gets the all the bookmarks', async () => {
@@ -15,7 +18,7 @@ describe('Bookmarks creation', () => {
 
     expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(0, 10); // Skip is page-1
 
-    expect(getOrSetMock).toHaveBeenCalled();
+    expect(cacheGetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,
@@ -27,7 +30,7 @@ describe('Bookmarks creation', () => {
     const result = await getPaginatedBookmarks(1, 1);
 
     expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(0, 1);
-    expect(getOrSetMock).toHaveBeenCalled();
+    expect(cacheGetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,
@@ -39,7 +42,7 @@ describe('Bookmarks creation', () => {
     const result = await getPaginatedBookmarks(2, 1);
 
     expect(findPaginatedBookmarksMock).toHaveBeenCalledWith(1, 1);
-    expect(getOrSetMock).toHaveBeenCalled();
+    expect(cacheGetMock).toHaveBeenCalled();
 
     expect(result).toMatchObject({
       total: 3,

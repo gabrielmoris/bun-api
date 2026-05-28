@@ -1,5 +1,5 @@
 import type { IBookmark } from '../types/bookmarkType';
-import { delAllBookmarkListCaches, delKeys } from '../repositories/cache';
+import { delAllBookmarkListCaches, delKeys } from '../middleware/cache';
 import { findAndUpdateBookmark } from '../repositories/bookmarkRepository';
 import { createAppError } from '../repositories/errorFactory';
 import { ApiErrorCode } from '../types/errorType';

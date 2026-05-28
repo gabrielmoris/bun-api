@@ -1,5 +1,5 @@
 import { findPaginatedBookmarks } from '../repositories/bookmarkRepository';
-import { cacheKeys, getOrSet } from '../repositories/cache';
+import { cacheKeys, getOrSet } from '../middleware/cache';
 import { createAppError } from '../repositories/errorFactory';
 import type { IBookmark } from '../types/bookmarkType';
 import { ApiErrorCode, type ApiErrorDetail } from '../types/errorType';

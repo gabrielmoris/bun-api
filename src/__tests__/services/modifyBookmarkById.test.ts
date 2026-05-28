@@ -1,22 +1,20 @@
-import { expect, test, describe, beforeAll, beforeEach, mock } from 'bun:test';
-import { mockedBookmarks } from '../mocks/bookmarks.mock';
-import { modifyBookmarkById } from '../../services/modifyBookmarkById';
-import { delAllBookmarkListCachesMock, mockCache } from '../mocks/redis.mock';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { findAndUpdateBookmarkMock, mockBookmarkRepository } from '../mocks/db.mock';
+import { mockedBookmarks } from '../mocks/bookmarks.mock';
+import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
+
+mockBookmarkRepository();
+mockCacheRepository();
+
+const { modifyBookmarkById } = await import('../../services/modifyBookmarkById');
 
 const bookmarkToModify = {
   url: 'http://i-am-modified.com',
 };
 
 describe('Bookmarks creation', () => {
-  beforeAll(() => {
-    mockBookmarkRepository();
-    mockCache();
-  });
-
   beforeEach(() => {
-    findAndUpdateBookmarkMock.mockClear();
-    delAllBookmarkListCachesMock.mockClear();
+    mock.clearAllMocks();
   });
 
   test('It modifies a Bookmark by ID and clears cache', async () => {
@@ -25,7 +23,7 @@ describe('Bookmarks creation', () => {
 
     expect(findAndUpdateBookmarkMock).toHaveBeenCalledWith(1, bookmarkToModify);
 
-    expect(delAllBookmarkListCachesMock).toHaveBeenCalledTimes(1);
+    expect(cacheDelPatternMock).toHaveBeenCalledTimes(1);
 
     expect(result).toMatchObject({
       ...oldBookmark,
@@ -48,7 +46,7 @@ describe('Bookmarks creation', () => {
       ],
     });
 
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
 
     expect(findAndUpdateBookmarkMock).not.toHaveBeenCalled();
   });
@@ -65,7 +63,7 @@ describe('Bookmarks creation', () => {
       ],
     });
 
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
 
     expect(findAndUpdateBookmarkMock).toHaveBeenCalledWith(10, bookmarkToModify);
   });

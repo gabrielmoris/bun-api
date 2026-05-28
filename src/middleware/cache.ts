@@ -1,14 +1,15 @@
-import { redis } from './redis';
-
-type CacheOptions<T> = {
-  key: string;
-  ttlSec: number;
-  loader: () => Promise<T>;
-};
+import {
+  clearOldEntries,
+  cacheDel,
+  cacheDelPattern,
+  cacheGet,
+  cacheSet,
+} from '../repositories/cacheRepository';
+import type { CacheOptions } from '../types/cacheType';
 
 export async function getOrSet<T>({ key, ttlSec, loader }: CacheOptions<T>): Promise<T> {
   try {
-    const cached = await redis.get(key);
+    const cached = cacheGet(key);
     if (cached) {
       return JSON.parse(cached) as T;
     }
@@ -19,7 +20,7 @@ export async function getOrSet<T>({ key, ttlSec, loader }: CacheOptions<T>): Pro
   const fresh = await loader();
 
   try {
-    await redis.setex(key, ttlSec, JSON.stringify(fresh));
+    cacheSet(key, ttlSec, JSON.stringify(fresh));
   } catch (error) {
     console.error(`[cache] SET failed for ${key}:`, error);
   }
@@ -29,18 +30,19 @@ export async function getOrSet<T>({ key, ttlSec, loader }: CacheOptions<T>): Pro
 
 export async function delKeys(...keys: string[]) {
   if (keys.length) {
-    await redis.del(...keys);
+    cacheDel(...keys);
   }
 }
 
 export async function delAllBookmarkListCaches() {
-  const keys = await redis.keys('bookmarks:list:*');
-  if (keys.length) {
-    await redis.del(...keys);
-  }
+  cacheDelPattern('bookmarks:list:*');
 }
 
 export const cacheKeys = {
   bookmarksById: (id: number) => `bookmarks:${id}`,
   bookmarksPage: (page: number, limit: number) => `bookmarks:list:${page}:${limit}`,
 };
+
+setInterval(() => {
+  clearOldEntries();
+}, 60_000);

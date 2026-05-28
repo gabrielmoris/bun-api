@@ -1,16 +1,15 @@
-import { expect, test, describe, beforeAll, beforeEach, mock } from 'bun:test';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { findBookmarkByIdMock, mockBookmarkRepository } from '../mocks/db.mock';
-import { delAllBookmarkListCachesMock, mockCache } from '../mocks/redis.mock';
-import { getBookmarkById } from '../../services/getBookmarkById';
 import { mockedBookmarks } from '../mocks/bookmarks.mock';
+import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
 import type { IBookmark } from '../../types/bookmarkType';
 
-describe('Bookmarks creation', () => {
-  beforeAll(() => {
-    mockBookmarkRepository();
-    mockCache();
-  });
+mockBookmarkRepository();
+mockCacheRepository();
 
+const { getBookmarkById } = await import('../../services/getBookmarkById');
+
+describe('Bookmarks creation', () => {
   beforeEach(() => {
     mock.clearAllMocks();
   });
@@ -19,7 +18,7 @@ describe('Bookmarks creation', () => {
     const result = await getBookmarkById(1);
     expect(findBookmarkByIdMock).toHaveBeenCalledWith(1);
     expect(result).toMatchObject(mockedBookmarks[0] as IBookmark);
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 
   test('It fails with the proper error if the ID is not valid', async () => {
@@ -38,7 +37,7 @@ describe('Bookmarks creation', () => {
     );
 
     expect(findBookmarkByIdMock).not.toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 
   test('Sends proper error when there is no Bookmark with that ID', async () => {
@@ -55,6 +54,6 @@ describe('Bookmarks creation', () => {
     });
 
     expect(findBookmarkByIdMock).toHaveBeenCalled();
-    expect(delAllBookmarkListCachesMock).not.toHaveBeenCalled();
+    expect(cacheDelPatternMock).not.toHaveBeenCalled();
   });
 });
