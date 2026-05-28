@@ -1,8 +1,10 @@
 import { serve } from 'bun';
 import { routes } from './routes';
 import { initBookmarksTable } from './db/bookmarkModel';
+import { initRateLimitTable } from './db/rateLimitModel';
 
 initBookmarksTable();
+initRateLimitTable();
 
 const server = serve({
   port: 3000,
