@@ -11,3 +11,9 @@ export function initRateLimitTable() {
     );
   `);
 }
+
+export function pruneRateLimitsTable() {
+  const db = getDB();
+  db.prepare('DELETE FROM rate_limit_hits').run();
+  db.prepare('DELETE FROM sqlite_sequence WHERE name="rate_limit_hits"').run();
+}

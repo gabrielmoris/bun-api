@@ -19,3 +19,9 @@ export function initBookmarksTable() {
 export function deserialize(row: RawBookmark): IBookmark {
   return { ...row, tags: JSON.parse(row.tags ?? '[]') };
 }
+
+export function pruneBookmarksTable() {
+  const db = getDB();
+  db.prepare('DELETE FROM bookmarks').run();
+  db.prepare('DELETE FROM sqlite_sequence WHERE name="bookmarks"').run();
+}
