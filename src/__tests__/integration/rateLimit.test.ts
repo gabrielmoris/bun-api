@@ -69,7 +69,9 @@ describe('withRateLimit', () => {
     const res = await handler(makeRequest('1.2.3.4') as any);
 
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too Many Requests');
+    expect(await res.json()).toMatchObject({
+      error: { code: 'RATE_LIMITED', message: 'Too many requests', details: [] },
+    });
     expect(res.headers.get('X-RateLimit-Remaining')).toBe('0');
   });
 

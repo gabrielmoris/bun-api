@@ -1,5 +1,7 @@
 import type { BunRequest } from 'bun';
 import { runRateLimitHits } from '../repositories/rateLimitRepository';
+import { withCors } from './cors';
+import { ApiErrorCode } from '../types/errorType';
 
 export const LIMIT = 100; // max requests
 export const WINDOW_MS = 60_000; // per 60 seconds
@@ -28,14 +30,25 @@ export function withRateLimit(handler: (req: BunRequest) => Response | Promise<R
     const { allowed, retryAfter, currentCount } = rateLimitHits();
 
     if (!allowed) {
-      return new Response('Too Many Requests', {
-        status: 429,
-        headers: {
-          'Retry-After': String(retryAfter),
-          'X-RateLimit-Limit': String(LIMIT),
-          'X-RateLimit-Remaining': '0',
+      const baseResponse = Response.json(
+        {
+          error: {
+            code: ApiErrorCode.RATE_LIMITED,
+            message: 'Too many requests',
+            details: [],
+          },
         },
-      });
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(retryAfter),
+            'X-RateLimit-Limit': String(LIMIT),
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      );
+
+      return withCors(req, baseResponse);
     }
 
     const res = await handler(req);
@@ -43,10 +56,13 @@ export function withRateLimit(handler: (req: BunRequest) => Response | Promise<R
     headers.set('X-RateLimit-Limit', String(LIMIT));
     headers.set('X-RateLimit-Remaining', String(Math.max(0, LIMIT - (currentCount || 0))));
 
-    return new Response(res.body, {
-      status: res.status,
-      statusText: res.statusText,
-      headers,
-    });
+    return withCors(
+      req,
+      new Response(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers,
+      })
+    );
   };
 }

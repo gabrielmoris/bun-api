@@ -11,6 +11,7 @@ export enum ApiErrorCode {
   INVALID_ID = 'INVALID_ID',
   NOT_FOUND = 'NOT_FOUND',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  RATE_LIMITED = 'RATE_LIMITED',
 }
 
 export type ApiError = {
