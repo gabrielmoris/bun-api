@@ -4,10 +4,8 @@ export function now() {
   return Math.floor(Date.now() / 1000);
 }
 
-const db = getDB();
-
 export function cacheGet(key: string): string | null {
-  const row = db
+  const row = getDB()
     .query<
       { value: string },
       [string, number]
@@ -17,7 +15,7 @@ export function cacheGet(key: string): string | null {
 }
 
 export function cacheSet(key: string, ttlSec: number, value: string) {
-  db.run(
+  getDB().run(
     `INSERT INTO cache (key, value, expires_at)
      VALUES (?, ?, ?)
      ON CONFLICT(key) DO UPDATE SET value = excluded.value, expires_at = excluded.expires_at`,
@@ -27,14 +25,14 @@ export function cacheSet(key: string, ttlSec: number, value: string) {
 
 export function cacheDel(...keys: string[]) {
   const placeholders = keys.map(() => '?').join(', ');
-  db.run(`DELETE FROM cache WHERE key IN (${placeholders})`, keys);
+  getDB().run(`DELETE FROM cache WHERE key IN (${placeholders})`, keys);
 }
 
 export function cacheDelPattern(pattern: string) {
   const likePattern = pattern.replace(/\*/g, '%');
-  db.run('DELETE FROM cache WHERE key LIKE ?', [likePattern]);
+  getDB().run('DELETE FROM cache WHERE key LIKE ?', [likePattern]);
 }
 
 export function clearOldEntries() {
-  db.run('DELETE FROM cache WHERE expires_at <= ?', [now()]);
+  getDB().run('DELETE FROM cache WHERE expires_at <= ?', [now()]);
 }
