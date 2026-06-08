@@ -13,7 +13,7 @@ let consoleErrorSpy: ReturnType<typeof spyOn>;
 mockCacheRepository();
 
 const { getOrSet, delKeys, delAllBookmarkListCaches, cacheKeys } =
-  await import('../../middleware/cache');
+  await import('../../../middleware/cache');
 
 describe('cache service', () => {
   beforeEach(() => {

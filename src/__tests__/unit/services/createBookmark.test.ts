@@ -5,13 +5,13 @@ import {
   mockBookmarkRepository,
 } from '../mocks/db.mock';
 import { mockedCreateBookmark } from '../mocks/bookmarks.mock';
-import type { IBookmark } from '../../types/bookmarkType';
+import type { IBookmark } from '../../../types/bookmarkType';
 import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
 
 mockBookmarkRepository();
 mockCacheRepository();
 
-const { createBookmark } = await import('../../services/createBookmark');
+const { createBookmark } = await import('../../../services/createBookmark');
 
 describe('createBookmark', () => {
   beforeEach(() => {

@@ -1,6 +1,6 @@
 import { mock } from 'bun:test';
 import { mockedBookmarks } from './bookmarks.mock';
-import type { IBookmark, IDeletedBookmark } from '../../types/bookmarkType';
+import type { IBookmark, IDeletedBookmark } from '../../../types/bookmarkType';
 
 // =====================
 // Bookmark Repository Mocks
@@ -52,7 +52,7 @@ export const findPaginatedBookmarksMock = mock(
 );
 
 export const mockBookmarkRepository = () =>
-  mock.module('../../repositories/bookmarkRepository', () => ({
+  mock.module('../../../repositories/bookmarkRepository', () => ({
     findBookmarkByUrl: findBookmarkByUrlMock,
     createBookmarkInDb: createBookmarkInDbMock,
     findBookmarkById: findBookmarkByIdMock,

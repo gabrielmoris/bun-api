@@ -6,7 +6,7 @@ import { cacheGetMock, mockCacheRepository } from '../mocks/cache.mock';
 mockBookmarkRepository();
 mockCacheRepository();
 
-const { getPaginatedBookmarks } = await import('../../services/getPaginatedBookmarks');
+const { getPaginatedBookmarks } = await import('../../../services/getPaginatedBookmarks');
 
 describe('Bookmarks creation', () => {
   beforeEach(() => {

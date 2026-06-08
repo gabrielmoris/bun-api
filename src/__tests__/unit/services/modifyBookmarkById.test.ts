@@ -6,7 +6,7 @@ import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
 mockBookmarkRepository();
 mockCacheRepository();
 
-const { modifyBookmarkById } = await import('../../services/modifyBookmarkById');
+const { modifyBookmarkById } = await import('../../../services/modifyBookmarkById');
 
 const bookmarkToModify = {
   url: 'http://i-am-modified.com',

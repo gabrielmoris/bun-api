@@ -6,7 +6,9 @@
     "prepare": "husky install",
     "docker": "docker compose up",
     "dev": "bun run src/index.ts",
-    "test": "bun test --ignore src/__tests__/integration && bun test --isolate src/__tests__/integration",
+    "test": "bun run test:integration && bun run test:unit",
+    "test:integration": "bun test --isolate src/__tests__/integration",
+    "test:unit": "bun test --isolate src/__tests__/unit",
     "lint-staged": "lint-staged"
   },
   "lint-staged": {

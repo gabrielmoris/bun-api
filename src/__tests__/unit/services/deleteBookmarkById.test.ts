@@ -6,7 +6,7 @@ import { cacheDelMock, cacheDelPatternMock, mockCacheRepository } from '../mocks
 mockBookmarkRepository();
 mockCacheRepository();
 
-const { deleteBookmarkById } = await import('../../services/deleteBookmarkById');
+const { deleteBookmarkById } = await import('../../../services/deleteBookmarkById');
 describe('deleteBookmarkById', () => {
   beforeEach(() => {
     mock.clearAllMocks();

@@ -7,7 +7,7 @@ export const cacheDelPatternMock = mock((_pattern: string) => {});
 export const clearOldEntriesMock = mock(() => {});
 
 export const mockCacheRepository = () =>
-  mock.module('../../repositories/cacheRepository', () => ({
+  mock.module('../../../repositories/cacheRepository', () => ({
     cacheGet: cacheGetMock,
     cacheSet: cacheSetMock,
     cacheDel: cacheDelMock,

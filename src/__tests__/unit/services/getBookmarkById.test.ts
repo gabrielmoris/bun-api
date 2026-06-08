@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { findBookmarkByIdMock, mockBookmarkRepository } from '../mocks/db.mock';
 import { mockedBookmarks } from '../mocks/bookmarks.mock';
 import { cacheDelPatternMock, mockCacheRepository } from '../mocks/cache.mock';
-import type { IBookmark } from '../../types/bookmarkType';
+import type { IBookmark } from '../../../types/bookmarkType';
 
 mockBookmarkRepository();
 mockCacheRepository();
 
-const { getBookmarkById } = await import('../../services/getBookmarkById');
+const { getBookmarkById } = await import('../../../services/getBookmarkById');
 
 describe('Bookmarks creation', () => {
   beforeEach(() => {

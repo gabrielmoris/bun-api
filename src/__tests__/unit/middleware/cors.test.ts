@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { getCorsHeaders } from '../../middleware/cors';
+import { getCorsHeaders } from '../../../middleware/cors';
 
 function makeRequest(origin?: string): Request {
   return new Request('http://localhost/api/test', {
