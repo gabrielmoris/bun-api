@@ -10,7 +10,8 @@
     "test:integration": "bun test --isolate src/__tests__/integration",
     "test:unit": "bun test --isolate src/__tests__/unit",
     "lint-staged": "lint-staged",
-    "backup:db": "bun run src/db/backupDb.ts"
+    "backup:db": "bun run src/db/backupDb.ts",
+    "migration:db": "bun run src/db/migrations.ts"
   },
   "lint-staged": {
     "*.{js,ts}": "prettier --write"
