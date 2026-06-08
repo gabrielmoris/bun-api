@@ -5,8 +5,8 @@ import { dirname } from 'node:path';
 let db: Database | null = null;
 let currentPath: string | null = null;
 
-export function getDB(): Database {
-  const DB_PATH = process.env.DATABASE_PATH ?? './data/bookmarks.db';
+export function getDB(dbPath?: string): Database {
+  const DB_PATH = dbPath || process.env.DATABASE_PATH || './data/bookmarks.db';
 
   if (db && currentPath !== DB_PATH) {
     db.close();
