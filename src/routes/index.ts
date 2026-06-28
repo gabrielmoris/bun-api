@@ -7,6 +7,7 @@ import { getBookmarks } from './bookmarks/get';
 import { getById } from './bookmarks/getById';
 import { postBookmark } from './bookmarks/post';
 import { putById } from './bookmarks/putById';
+import { register } from './auth/register';
 
 type Handler = (req: BunRequest) => Response | Promise<Response>;
 
@@ -26,6 +27,9 @@ export const routes = {
     GET: withMiddleware(getById),
     PUT: withMiddleware(putById),
     DELETE: withMiddleware(deleteById),
+  },
+  '/auth/register': {
+    POST: withMiddleware(register),
   },
 };
 

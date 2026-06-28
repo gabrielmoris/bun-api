@@ -5,10 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: bun-api
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./:/app
     working_dir: /app
     command: bun run --watch src/index.ts
     environment:
       ALLOWED_ORIGINS: '["http://localhost:3000"]'
+      JWT_SECRET: 'v+eTgwyHgIanlW3U8MBfJZwXVuZGu3TMwyvl5H/bAGYPX7EKCFBvdQJ7ICZzD7k/FOAKWhPlIOdrtZmLkrq7ag=='
