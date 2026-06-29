@@ -23,6 +23,8 @@ export const register = async (req: BunRequest): Promise<Response> => {
     );
   }
 
+  // TODO: Create JWT, user Service and repository
+
   //   const user = await createUSer(result.data);
 
   //   return withCors(req, Response.json({ created: true, ...user }, { status: 201 }));
